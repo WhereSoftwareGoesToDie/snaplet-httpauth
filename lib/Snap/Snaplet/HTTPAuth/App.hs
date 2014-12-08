@@ -3,7 +3,8 @@
 module Snap.Snaplet.HTTPAuth.App (
     withAuth,
     withAuth',
-    currentUser
+    currentUser,
+    currentUserInDomain
 ) where
 
 import Prelude hiding (lookup)
@@ -18,15 +19,21 @@ import Snap.Snaplet
 import Snap.Snaplet.HTTPAuth.Backend
 import Snap.Snaplet.HTTPAuth.Types
 
-import Application
-
 --------------------------------------------------------------------------------
 -- | Public method: Get current user from Auth headers.
 currentUser
     :: SnapletLens b AuthConfig
     -> Handler b b (Maybe AuthUser)
-currentUser auth = do
-    x <- withTop auth (authDomain "display")
+currentUser = currentUserInDomain "display"
+
+-- | Public method: Get current user from Auth headers within an arbitrary
+-- domain.
+currentUserInDomain
+    :: String
+    -> SnapletLens b AuthConfig
+    -> Handler b b (Maybe AuthUser)
+currentUserInDomain domainName auth = do
+    x <- withTop auth (authDomain domainName)
     h <- withTop auth $ view authHeaders
     case x of
         Nothing -> return Nothing
@@ -41,10 +48,10 @@ currentUser auth = do
 -- This version only uses roles that are derived from the AuthDomain itself.
 withAuth
     :: String
-    -> SnapletLens App AuthConfig
-    -> Handler App App ()
-    -> Handler App App ()
-withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn [] ifSuccessful
+    -> SnapletLens b AuthConfig
+    -> Handler b b ()
+    -> Handler b b ()
+withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn [] auth ifSuccessful
 
 -- | Public method: Perform authentication passthrough.
 -- This version uses roles that are derived from the AuthDomain, PLUS sets of
@@ -53,26 +60,27 @@ withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain
 -- to work on particular assets, on top of ones already present.
 withAuth'
     :: String
-    -> SnapletLens App AuthConfig
+    -> SnapletLens b AuthConfig
     -> [String]
-    -> Handler App App ()
-    -> Handler App App ()
-withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn addRoles ifSuccessful
+    -> Handler b b ()
+    -> Handler b b ()
+withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn addRoles auth ifSuccessful
 
 -- | Internal method: Perform authentication passthrough with a known 
 -- AuthDomain and list of additional roles.
 withAuth_Domain
     :: String
     -> [String]
-    -> Handler App App ()
+    -> SnapletLens b AuthConfig
+    -> Handler b b ()
     -> Maybe AuthDomain
-    -> Handler App App ()
-withAuth_Domain dn addRoles ifSuccessful ad = do
+    -> Handler b b ()
+withAuth_Domain dn addRoles auth ifSuccessful ad = do
     case ad of
         Nothing -> throwDenied
         Just ad'@(AuthDomain _ s) -> do
             rq <- getRequest
-            h <- withTop httpauth $ view authHeaders
+            h <- withTop auth $ view authHeaders
             let h' = (parseAuthorizationHeader h $ getHeader "Authorization" rq)
             testResult <- liftIO $ testAuthHeader ad' addRoles h'
             if testResult

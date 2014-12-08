@@ -2,9 +2,7 @@
 
 module Snap.Snaplet.HTTPAuth.Backend (
     AllowEverything (..),
-    AnchorAuthAPI (..),
-    cfgToAllowEverything,
-    cfgToAnchorAuthAPI
+    cfgToAllowEverything
 ) where
 
 import Snap.Snaplet.HTTPAuth.Backend.AllowEverything
