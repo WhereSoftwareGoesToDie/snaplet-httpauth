@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Grab identifier
+platform='unknown'
+unamestr=`uname`
+unameext=`uname -m`
+
+# Determine OS
+if [[ "$unamestr" == 'Linux' ]]; then
+	if [[ "$unameext" == 'x86_64' ]]; then
+		platform='linux64'
+	else
+		platform='linux32'
+	fi
+elif [[ "$unamestr" == 'Darwin' ]]; then
+	platform='mac32'
+fi
+
+# Download Selenium Server
+curl http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar > selenium-server-standalone.jar
+
+# Download Chromedriver
+curl http://chromedriver.storage.googleapis.com/2.12/chromedriver_$platform.zip > chromedriver.zip
+unzip chromedriver.zip
+rm chromedriver.zip

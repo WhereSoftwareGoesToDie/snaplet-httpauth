@@ -13,7 +13,12 @@ module Snap.Snaplet.HTTPAuth (
     AuthHeaderWrapper (..),
     parseBasicAuthHeader,
     parserToAHW,
-    parseAuthorizationHeader
+    parseAuthorizationHeader,
+
+    configToADT,
+    cfgToAllowEverything,
+    cfgToAllowEverythingIfHeader,
+    cfgToUserPass
 ) where
 
 import Control.Lens
@@ -30,6 +35,7 @@ import qualified Text.XmlHtml as X
 
 import Snap.Snaplet
 import Snap.Snaplet.Heist
+import Snap.Snaplet.HTTPAuth.Backend
 import Snap.Snaplet.HTTPAuth.Config
 import Snap.Snaplet.HTTPAuth.Types
 import Snap.Snaplet.HTTPAuth.App

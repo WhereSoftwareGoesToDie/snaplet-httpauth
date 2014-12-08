@@ -3,10 +3,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Snap.Snaplet.HTTPAuth.Backend.AllowEverything (
-    AllowEverything (..),
+module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
+    AllowEverythingIfHeader (..),
     IAuthDataSource,
-    cfgToAllowEverything
+    cfgToAllowEverythingIfHeader
 ) where
 
 import Data.ByteString (ByteString)
@@ -19,13 +19,13 @@ import Snap.Snaplet.HTTPAuth.Types.AuthUser
 import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 
 -------------------------------------------------------------------------------
-data AllowEverything = AllowEverything
+data AllowEverythingIfHeader = AllowEverythingIfHeader
 
-instance IAuthDataSource AllowEverything where
-    getUser _ Nothing  = return . Just $ AuthUser "blankAuthHeaderAllowed" $ fromList []
+instance IAuthDataSource AllowEverythingIfHeader where
+    getUser _ Nothing  = return Nothing
     getUser _ (Just _) = return . Just $ AuthUser "basicAuthAllowed" $ fromList []
     validateUser _ _ _ = True
 
 -------------------------------------------------------------------------------
-cfgToAllowEverything :: [(Text, CT.Value)] -> AllowEverything
-cfgToAllowEverything _ = AllowEverything
+cfgToAllowEverythingIfHeader :: [(Text, CT.Value)] -> AllowEverythingIfHeader
+cfgToAllowEverythingIfHeader _ = AllowEverythingIfHeader

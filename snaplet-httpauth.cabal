@@ -3,23 +3,30 @@
 
 name:                snaplet-httpauth
 version:             0.1.0.0
--- synopsis:            
--- description:         
+synopsis:            HTTP Auth Snaplet for Snap Framework
+description:         HTTP Auth Snaplet for Snap Framework
 license:             BSD3
 license-file:        LICENSE
 author:              Geoffrey Roberts <geoffrey.roberts@anchor.com.au>
 maintainer:          Anchor Engineering <engineering@anchor.com.au>
--- copyright:           
+copyright:           © Anchor Systems 2014
 category:            Web
 build-type:          Simple
--- extra-source-files:  
 cabal-version:       >=1.10
+extra-source-files:
+  snaplets/heist/templates/snaplet_httpauth_test.tpl
+
+flag network-uri
+   description: Get Network.URI from the network-uri package
+   default: True
 
 library
   exposed-modules:     Snap.Snaplet.HTTPAuth
   other-modules:       Snap.Snaplet.HTTPAuth.App
                      , Snap.Snaplet.HTTPAuth.Backend
                      , Snap.Snaplet.HTTPAuth.Backend.AllowEverything
+                     , Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader
+                     , Snap.Snaplet.HTTPAuth.Backend.UserPass
                      , Snap.Snaplet.HTTPAuth.Config
                      , Snap.Snaplet.HTTPAuth.Types
                      , Snap.Snaplet.HTTPAuth.Types.AuthHeader
@@ -47,3 +54,91 @@ library
                      , xmlhtml
   hs-source-dirs:      lib
   default-language:    Haskell2010
+
+test-suite snaplet-tests
+  hs-source-dirs:      src test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  main-is:             SnapletTests.hs
+  if flag(network-uri)
+    build-depends: network-uri >= 2.6, network >= 2.6
+  else
+    build-depends: network-uri < 2.6, network < 2.6
+  build-depends:       base >=4.7 && <4.8
+                     , bytestring
+                     , configurator
+                     , containers
+                     , directory
+                     , heist
+                     , hspec
+                     , http-client
+                     , http-types
+                     , HUnit
+                     , lens
+                     , snap
+                     , snap-core
+                     , snap-server
+                     , snaplet-httpauth
+                     , text
+                     , transformers
+                     , webdriver
+                     , wreq
+
+test-suite snaplet-tests-non-selenium
+  hs-source-dirs:      src test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  main-is:             SnapletTestsNonSelenium.hs
+  if flag(network-uri)
+    build-depends: network-uri >= 2.6, network >= 2.6
+  else
+    build-depends: network-uri < 2.6, network < 2.6
+  build-depends:       base >=4.7 && <4.8
+                     , base64-bytestring
+                     , bytestring
+                     , configurator
+                     , containers
+                     , directory
+                     , heist
+                     , hspec
+                     , http-client
+                     , http-types
+                     , HUnit
+                     , lens
+                     , snap
+                     , snap-core
+                     , snap-server
+                     , snaplet-httpauth
+                     , text
+                     , transformers
+                     , wreq
+
+executable uat-snaplet-tests
+  hs-source-dirs:      src test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  main-is:             UatSnapletTests.hs
+  if flag(network-uri)
+    build-depends: network-uri >= 2.6, network >= 2.6
+  else
+    build-depends: network-uri < 2.6, network < 2.6
+  build-depends:       base >=4.7 && <4.8
+                     , base64-bytestring
+                     , bytestring
+                     , configurator
+                     , containers
+                     , directory
+                     , heist
+                     , hspec
+                     , http-client
+                     , http-types
+                     , HUnit
+                     , lens
+                     , snap
+                     , snap-core
+                     , snap-loader-static
+                     , snap-server
+                     , snaplet-httpauth
+                     , text
+                     , transformers
+                     , wreq
