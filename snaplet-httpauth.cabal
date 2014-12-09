@@ -79,6 +79,7 @@ test-suite snaplet-tests
                      , snap-core
                      , snap-server
                      , snaplet-httpauth
+                     , split
                      , text
                      , transformers
                      , webdriver
@@ -109,6 +110,7 @@ test-suite snaplet-tests-non-selenium
                      , snap-core
                      , snap-server
                      , snaplet-httpauth
+                     , split
                      , text
                      , transformers
                      , wreq

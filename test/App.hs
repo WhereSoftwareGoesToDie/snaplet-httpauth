@@ -38,34 +38,47 @@ type AppHandler = Handler App App
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
-routes = [ ("tpl",         publicTpl)
-         , ("domain1",     domain1Page)
-         , ("domain2",     domain2Page)
-         , ("pub",         publicPage) ]
+routes = [ ("tpl/pub",        publicTpl)
+         , ("tpl/everything", everythingTpl)
+         , ("tpl/ifheader",   ifheaderTpl)
+         , ("tpl/userpass",   userpassTpl)
+         
+         , ("everything",     everythingPage)
+         , ("ifheader",       ifheaderPage)
+         , ("userpass",       userpassPage)
+         , ("pub",            publicPage) ]
 
 -- | A public page, with no HTTP Auth
 publicPage :: Handler App App ()
 publicPage = writeBS . C8.pack $ "Hello world"
 
 -- | A private page in domain 1
-domain1Page :: Handler App App ()
-domain1Page = withAuth "domain1" httpauth $ writeBS . C8.pack $ "Hello domain1"
+everythingPage :: Handler App App ()
+everythingPage = withAuth "everything" httpauth $ writeBS . C8.pack $ "Hello everything"
+
+-- | A private page in domain 1
+ifheaderPage :: Handler App App ()
+ifheaderPage = withAuth "ifheader" httpauth $ writeBS . C8.pack $ "Hello ifheader"
 
 -- | A private page in domain 2
-domain2Page :: Handler App App ()
-domain2Page = withAuth "domain2" httpauth $ writeBS . C8.pack $ "Hello domain2"
+userpassPage :: Handler App App ()
+userpassPage = withAuth "userpass" httpauth $ writeBS . C8.pack $ "Hello userpass"
 
 -- | A public tpl page
 publicTpl :: Handler App App ()
 publicTpl = render "snaplet_httpauth_test"
 
 -- | A private tpl page in domain 2
-domain1Tpl :: Handler App App ()
-domain1Tpl = withAuth "domain1" httpauth $ render "snaplet_httpauth_test"
+everythingTpl :: Handler App App ()
+everythingTpl = withAuth "everything" httpauth $ render "snaplet_httpauth_test"
 
 -- | A private tpl page in domain 2
-domain2Tpl :: Handler App App ()
-domain2Tpl = withAuth "domain2" httpauth $ render "snaplet_httpauth_test"
+ifheaderTpl :: Handler App App ()
+ifheaderTpl = withAuth "ifheader" httpauth $ render "snaplet_httpauth_test"
+
+-- | A private tpl page in domain 2
+userpassTpl :: Handler App App ()
+userpassTpl = withAuth "userpass" httpauth $ render "snaplet_httpauth_test"
 
 ------------------------------------------------------------------------------
 -- | The application initializer.

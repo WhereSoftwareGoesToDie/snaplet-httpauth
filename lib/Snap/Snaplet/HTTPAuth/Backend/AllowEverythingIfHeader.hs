@@ -10,6 +10,7 @@ module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
 ) where
 
 import Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as C
 import Data.HashMap (HashMap (..), fromList)
 import qualified Data.Configurator.Types as CT
 import Data.Text (Text)
@@ -22,9 +23,9 @@ import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 data AllowEverythingIfHeader = AllowEverythingIfHeader
 
 instance IAuthDataSource AllowEverythingIfHeader where
-    getUser _ Nothing  = return Nothing
-    getUser _ (Just _) = return . Just $ AuthUser "basicAuthAllowed" $ fromList []
-    validateUser _ _ _ = True
+    getUser _ Nothing                             = return Nothing
+    getUser _ (Just (AuthHeaderWrapper (_,gf,_))) = return . Just $ AuthUser (C.pack . maybe "Unknown" id . gf $ "Username") (fromList [])
+    validateUser _ _ _                            = True
 
 -------------------------------------------------------------------------------
 cfgToAllowEverythingIfHeader :: [(Text, CT.Value)] -> AllowEverythingIfHeader

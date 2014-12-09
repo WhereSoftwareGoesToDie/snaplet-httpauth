@@ -33,23 +33,37 @@ suite = do
             req "/pub" "get" Nothing Nothing >>=
             expectHttpCode HT.ok200
 
-    describe "domain 1 auth" $ do
+    describe "everything auth" $ do
         it "prompts for auth when none is provided" $
-            req "/domain1" "get" Nothing Nothing >>=
-            expectHttpCode HT.unauthorized401
+            req "/everything" "get" Nothing Nothing >>=
+            expectHttpCode HT.ok200
+        it "flunks out when bad auth is provided" $
+            req "/everything" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
+            expectHttpCode HT.ok200
         it "fetches a page when auth is provided" $
-            req "/domain1" "get" Nothing (Just $ packBasic "foo" "bar") >>=
+            req "/everything" "get" Nothing (Just $ packBasic "foo" "bar") >>=
             expectHttpCode HT.ok200
 
-    describe "domain 2 auth" $ do
+    describe "ifheader auth" $ do
         it "prompts for auth when none is provided" $
-            req "/domain2" "get" Nothing Nothing >>=
+            req "/ifheader" "get" Nothing Nothing >>=
             expectHttpCode HT.unauthorized401
         it "flunks out when bad auth is provided" $
-            req "/domain2" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
+            req "/ifheader" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
+            expectHttpCode HT.ok200
+        it "fetches a page when auth is provided" $
+            req "/ifheader" "get" Nothing (Just $ packBasic "foo" "bar") >>=
+            expectHttpCode HT.ok200
+
+    describe "userpass auth" $ do
+        it "prompts for auth when none is provided" $
+            req "/userpass" "get" Nothing Nothing >>=
+            expectHttpCode HT.unauthorized401
+        it "flunks out when bad auth is provided" $
+            req "/userpass" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
             expectHttpCode HT.forbidden403
         it "fetches a page when good auth is provided" $
-            req "/domain1" "get" Nothing (Just $ packBasic "foo" "bar") >>=
+            req "/userpass" "get" Nothing (Just $ packBasic "foo" "bar") >>=
             expectHttpCode HT.ok200
 
 packBasic :: String -> String -> String

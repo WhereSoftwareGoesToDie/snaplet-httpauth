@@ -39,9 +39,8 @@ currentUserInDomain domainName auth = do
         Nothing -> return Nothing
         Just d  -> currentUser' h d
   where
-    currentUser' h (AuthDomain _ (AuthDataWrapper (gu, _))) = do
-        rq <- getRequest
-        liftIO $ gu (parseAuthorizationHeader h $ getHeader "Authorization" rq)
+    currentUser' h (AuthDomain _ (AuthDataWrapper (gu, _))) =
+        getRequest >>= liftIO . gu . parseAuthorizationHeader h . getHeader "Authorization"
 
 --------------------------------------------------------------------------------
 -- | Public method: Perform authentication passthrough.
@@ -131,6 +130,3 @@ testAuthHeader
 testAuthHeader (AuthDomain _ (AuthDataWrapper (gu, vu))) addRoles h = do
     x <- gu h
     return $ maybe False (vu addRoles) x
-
-
-

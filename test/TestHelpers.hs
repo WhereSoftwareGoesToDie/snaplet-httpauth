@@ -2,6 +2,7 @@ module TestHelpers where
 
 import Control.Lens
 import qualified Data.ByteString.Lazy as BSL
+import Data.List.Split
 import Data.Text (pack)
 import Test.Hspec
 import Test.HUnit
@@ -19,9 +20,13 @@ pass = return ()
 url :: String -> String
 url x = concat ["http://localhost:", show appPort, x]
 
+-- | Builds a URL
+urlWithCreds :: String -> String -> String -> String
+urlWithCreds x u p = concat ["http://", u, ":", p, "@localhost:", show appPort, x]
+
 -- | Unpacks a URL
 unurl :: String -> String
-unurl x = drop (length . url $ "") x
+unurl = last . splitOn ("localhost:" ++ show appPort)
 
 -- | Catchall for confirming response HTTP code matches
 expectHttpCode :: HT.Status -> Either HC.HttpException (Response BSL.ByteString) -> Expectation
