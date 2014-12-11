@@ -17,6 +17,10 @@ import Snap.Snaplet.HTTPAuth.Types.AuthUser
 import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 
 -------------------------------------------------------------------------------
+-- | The AllowEverythingIfHeader backend for the HTTPAuth Snaplet allows only
+-- requests that have an Authorization header through.
+-- This is probably more useful for your Heist snaplets or for testing your
+-- application than it is for production.
 data AllowEverythingIfHeader = AllowEverythingIfHeader
 
 instance IAuthDataSource AllowEverythingIfHeader where
@@ -25,5 +29,7 @@ instance IAuthDataSource AllowEverythingIfHeader where
     validateUser _ _ _                            = True
 
 -------------------------------------------------------------------------------
-cfgToAllowEverythingIfHeader :: [(Text, CT.Value)] -> AllowEverythingIfHeader
+cfgToAllowEverythingIfHeader
+	:: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
+	-> AllowEverythingIfHeader -- ^ An AllowEverythingIfHeader backend for a particular HTTPAuth domain.
 cfgToAllowEverythingIfHeader _ = AllowEverythingIfHeader

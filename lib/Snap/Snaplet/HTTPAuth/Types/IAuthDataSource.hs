@@ -25,9 +25,22 @@ class IAuthDataSource r where
 ------------------------------------------------------------------------
 type CfgPair = (Text, CT.Value)
 
+-- | A wrapper around an object that implements the IAuthDataSource class.
+-- Contains a tuple of two functions:
+-- (getUser) a function that takes a Maybe AuthHeaderWrapper and returns
+-- a Maybe AuthUser,
+-- and (validateUser) a function that takes a list of roles specific to
+-- the Handler, and an AuthUser. It returns True if the user is allowed
+-- to run this handler, and False if not.
 data AuthDataWrapper = AuthDataWrapper (Maybe AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
 
-configToADT :: (IAuthDataSource r) => ([CfgPair] -> r) -> [CfgPair] -> AuthDataWrapper
+-- | Builds an AuthDataWrapper out of configuration information.
+-- Most often used as a partial method when setting up your site.
+configToADT
+	:: (IAuthDataSource r)
+	=> ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an object of class IAuthDataSource.
+	-> [CfgPair] -- ^ A list of Configurator pairs.
+	-> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
 configToADT groupTranslator cfg = AuthDataWrapper (getUser b, validateUser b)
     where
         b = groupTranslator cfg

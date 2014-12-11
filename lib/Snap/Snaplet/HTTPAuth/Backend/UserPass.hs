@@ -17,6 +17,12 @@ import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 import Snap.Utilities.Configuration
 
 -------------------------------------------------------------------------------
+-- | The UserPass backend for the HTTPAuth Snaplet allows only requests that
+-- match a single username and password through.
+-- Given that it only supports a single username and password, this is probably
+-- more useful for your Heist snaplets or for testing your application than it
+-- is for production, but it might serve as a base for developing other
+-- authentication solutions.
 data UserPass = UserPass {
     userpassUsername :: String,
     userpassPassword :: String
@@ -39,7 +45,9 @@ instance IAuthDataSource UserPass where
         (lookup "Password" f == (Just . C.pack . userpassPassword $ up))
 
 -------------------------------------------------------------------------------
-cfgToUserPass :: [(Text, CT.Value)] -> UserPass
+cfgToUserPass
+    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
+    -> UserPass -- ^ A UserPass backend for a particular HTTPAuth domain.
 cfgToUserPass cfg =
     let
         u = cfgLookupWithDefault "Username" "" stringValue cfg

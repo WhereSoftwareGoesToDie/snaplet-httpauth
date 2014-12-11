@@ -21,9 +21,9 @@ type AuthWrapPairs = (String, [CfgPair] -> AuthDataWrapper)
 ------------------------------------------------------------------------------
 -- | Gets auth manager configuration.
 getAuthManagerCfg
-    :: [ByteString -> Maybe AuthHeaderWrapper]
-    -> [AuthWrapPairs]
-    -> CT.Config
+    :: [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of methods that parse Authorization headers into AuthHeaderWrapper objects
+    -> [AuthWrapPairs] -- ^ List of tuples of functions that convert configuration into AuthDataWrapper objects, and configuration identifiers
+    -> CT.Config -- ^ Configuration object obtained by parsing the application's configuration file
     -> IO AuthConfig
 getAuthManagerCfg ahp awp config = do
     groups <- extractGroups isAD config
@@ -33,7 +33,10 @@ getAuthManagerCfg ahp awp config = do
 
 ------------------------------------------------------------------------------
 -- | Evaluate a single config group.
-evalGroup :: [AuthWrapPairs] -> [CfgPair] -> AuthDomain
+evalGroup
+    :: [AuthWrapPairs] -- ^ List of tuples of functions that convert configuration into AuthDataWrapper objects, and configuration identifiers
+    -> [CfgPair] -- ^ Pairs of configuration values extracted from the application's configuration file
+    -> AuthDomain
 evalGroup awp = withValidGroup "AuthenticationType" processGroup
   where
     processGroup name gType gCfg =

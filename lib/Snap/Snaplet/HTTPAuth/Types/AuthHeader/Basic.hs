@@ -17,6 +17,8 @@ import Prelude hiding (lookup)
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader.Base
 
 -------------------------------------------------------------------------------
+-- | Internal representation of Basic authorization header.
+-- The Map in this object contains two key/value pairs: Username and Password.
 data BasicAuthHeader = BasicAuthHeader (Map String String)
 
 instance AuthHeader BasicAuthHeader where
@@ -26,6 +28,7 @@ instance AuthHeader BasicAuthHeader where
       where
         f = fromMaybe "" . authHeaderField x
 
+-- | Parses a Basic Authorization header into an internal object that contains its details.
 parseBasicAuthHeader
     :: ByteString
     -> Maybe BasicAuthHeader

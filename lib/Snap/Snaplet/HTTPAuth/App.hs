@@ -21,15 +21,15 @@ import Snap.Snaplet.HTTPAuth.Types
 --------------------------------------------------------------------------------
 -- | Public method: Get current user from Auth headers.
 currentUser
-    :: SnapletLens b AuthConfig
+    :: SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
     -> Handler b b (Maybe AuthUser)
 currentUser = currentUserInDomain "display"
 
 -- | Public method: Get current user from Auth headers within an arbitrary
 -- domain.
 currentUserInDomain
-    :: String
-    -> SnapletLens b AuthConfig
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
     -> Handler b b (Maybe AuthUser)
 currentUserInDomain domainName auth = do
     x <- withTop auth (authDomain domainName)
@@ -45,10 +45,10 @@ currentUserInDomain domainName auth = do
 -- | Public method: Perform authentication passthrough.
 -- This version only uses roles that are derived from the AuthDomain itself.
 withAuth
-    :: String
-    -> SnapletLens b AuthConfig
-    -> Handler b b ()
-    -> Handler b b ()
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    -> Handler b b () -- ^ Handler to run if authentication was successful
+    -> Handler b b () -- ^ If the user was successfully authenticated, the provided handler will be run. Otherwise, internal handlers returning a 401 Unauthorized (when no header was found) or a 403 Access Denied (when a header was found but not authorised) HTTP status code will be returned.
 withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn [] auth ifSuccessful
 
 -- | Public method: Perform authentication passthrough.
@@ -57,21 +57,21 @@ withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain 
 -- This allows us to define roles that the current user must have be present
 -- to work on particular assets, on top of ones already present.
 withAuth'
-    :: String
-    -> SnapletLens b AuthConfig
-    -> [String]
-    -> Handler b b ()
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
+    -> Handler b b () -- ^ Handler to run if authentication was successful
     -> Handler b b ()
 withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn addRoles auth ifSuccessful
 
 -- | Internal method: Perform authentication passthrough with a known
 -- AuthDomain and list of additional roles.
 withAuthDomain
-    :: String
-    -> [String]
-    -> SnapletLens b AuthConfig
-    -> Handler b b ()
-    -> Maybe AuthDomain
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
+    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    -> Handler b b () -- ^ Handler to run if authentication was successful
+    -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the supplied domain name
     -> Handler b b ()
 withAuthDomain dn addRoles auth ifSuccessful ad =
     case ad of
@@ -92,7 +92,7 @@ withAuthDomain dn addRoles auth ifSuccessful ad =
 --------------------------------------------------------------------------------
 -- | Internal method: Get AuthDomain by name
 authDomain
-    :: String
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
     -> Handler b AuthConfig (Maybe AuthDomain)
 authDomain domainName = do
     x <- get
@@ -103,7 +103,7 @@ authDomain domainName = do
 --------------------------------------------------------------------------------
 -- | Internal method: Throw a 401 error response.
 throwChallenge
-    :: String
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
     -> Handler b b ()
 throwChallenge domainName = do
     modifyResponse $ setResponseStatus 401 "Unauthorized" . setHeader "WWW-Authenticate" (C.pack realm)
@@ -122,9 +122,9 @@ throwDenied = do
 -- | Internal method: Test authentication header against AuthDomain, using the
 -- current AuthDomain's implementation of of validateUser.
 testAuthHeader
-    :: AuthDomain
-    -> [String]
-    -> Maybe AuthHeaderWrapper
+    :: AuthDomain -- ^ An AuthDomain object determined by the supplied domain name
+    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
+    -> Maybe AuthHeaderWrapper -- ^ A potential AuthHeaderWrapper obtained by an attempt to parse the Authorization header
     -> IO Bool
 testAuthHeader (AuthDomain _ (AuthDataWrapper (gu, vu))) addRoles h = do
     x <- gu h

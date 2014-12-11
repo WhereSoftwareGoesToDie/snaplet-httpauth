@@ -4,7 +4,10 @@
 name:                snaplet-httpauth
 version:             0.1.0.0
 synopsis:            HTTP Auth Snaplet for Snap Framework
-description:         HTTP Auth Snaplet for Snap Framework
+description:
+  HTTP Auth Snaplet for Snap Framework
+  .
+  See Snap.Snaplet.HTTPAuth.Tutorial for details on integration with your Snap application.
 license:             BSD3
 license-file:        LICENSE
 author:              Geoffrey Roberts <geoffrey.roberts@anchor.com.au>
@@ -22,6 +25,7 @@ flag network-uri
 
 library
   exposed-modules:     Snap.Snaplet.HTTPAuth
+                     , Snap.Snaplet.HTTPAuth.Tutorial
   other-modules:       Snap.Snaplet.HTTPAuth.App
                      , Snap.Snaplet.HTTPAuth.Backend
                      , Snap.Snaplet.HTTPAuth.Backend.AllowEverything
