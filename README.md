@@ -1,5 +1,7 @@
 # HTTP Auth Snaplet for Snap Framework
 
+[![Build Status](https://travis-ci.org/anchor/snaplet-httpauth.svg)](https://travis-ci.org/anchor/snaplet-httpauth)
+
 This Snaplet enables you to use HTTP Auth with configurable backends.
 
 © Anchor Systems 2014
