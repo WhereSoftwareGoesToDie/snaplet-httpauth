@@ -108,3 +108,9 @@ printSomethingSecret = withAuth "securedArea" httpauth $ do
 ```
 
 Note that the domain name used in withAuth directly maps to the domain names in your configuration file.
+
+## Extending
+
+This section is yet to be populated, but will contain details of how to build your own Authorization header parsers and HTTPAuth backends.
+
+
