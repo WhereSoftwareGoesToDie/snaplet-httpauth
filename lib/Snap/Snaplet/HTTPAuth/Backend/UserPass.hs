@@ -6,11 +6,11 @@ module Snap.Snaplet.HTTPAuth.Backend.UserPass (
     cfgToUserPass
 ) where
 
-import Prelude hiding (lookup)
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (fromList, lookup)
 import qualified Data.Configurator.Types as CT
+import Data.HashMap (fromList, lookup)
 import Data.Text (Text)
+import Prelude hiding (lookup)
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser
 import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource

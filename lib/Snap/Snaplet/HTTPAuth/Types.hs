@@ -12,7 +12,7 @@ module Snap.Snaplet.HTTPAuth.Types (
 
     authDomains,
     authHeaders,
-    
+
     AuthHeaderWrapper (..),
     parseBasicAuthHeader,
     parserToAHW,

@@ -13,14 +13,14 @@ module ServerRun (
     withServer
 ) where
 
-import Control.Monad.IO.Class
 import Control.Concurrent
 import Control.Exception
 import Control.Lens
+import Control.Monad.IO.Class
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as BSL
 import Data.Configurator
 import Data.Map.Lazy
 import Data.Text (pack)

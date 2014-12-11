@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedStrings        #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE OverloadedStrings        #-}
 
 module Snap.Snaplet.HTTPAuth.App (
     withAuth,
@@ -8,11 +8,11 @@ module Snap.Snaplet.HTTPAuth.App (
     currentUserInDomain
 ) where
 
-import Prelude hiding (lookup)
 import Control.Lens
 import Control.Monad.State
 import qualified Data.ByteString.Char8 as C
 import Data.List hiding (lookup)
+import Prelude hiding (lookup)
 import Snap.Core
 import Snap.Snaplet
 
@@ -64,7 +64,7 @@ withAuth'
     -> Handler b b ()
 withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn addRoles auth ifSuccessful
 
--- | Internal method: Perform authentication passthrough with a known 
+-- | Internal method: Perform authentication passthrough with a known
 -- AuthDomain and list of additional roles.
 withAuthDomain
     :: String

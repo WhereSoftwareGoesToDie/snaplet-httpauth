@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedStrings        #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE OverloadedStrings        #-}
 
 module Snap.Snaplet.HTTPAuth (
     AuthConfig (..),
@@ -32,10 +32,10 @@ import qualified Text.XmlHtml as X
 
 import Snap.Snaplet
 import Snap.Snaplet.Heist
+import Snap.Snaplet.HTTPAuth.App
 import Snap.Snaplet.HTTPAuth.Backend
 import Snap.Snaplet.HTTPAuth.Config
 import Snap.Snaplet.HTTPAuth.Types
-import Snap.Snaplet.HTTPAuth.App
 
 --------------------------------------------------------------------------------
 -- | Initialise Auth snaplet

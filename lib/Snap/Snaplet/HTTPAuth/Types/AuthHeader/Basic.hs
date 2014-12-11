@@ -7,12 +7,12 @@
 
 module Snap.Snaplet.HTTPAuth.Types.AuthHeader.Basic where
 
-import Prelude hiding (lookup)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C
 import Data.Map
 import Data.Maybe (fromMaybe)
+import Prelude hiding (lookup)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader.Base
 

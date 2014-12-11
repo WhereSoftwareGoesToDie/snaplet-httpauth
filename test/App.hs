@@ -1,10 +1,10 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE RankNTypes        #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
 
 module App where
 
@@ -42,7 +42,7 @@ routes = [ ("tpl/pub",        publicTpl)
          , ("tpl/everything", everythingTpl)
          , ("tpl/ifheader",   ifheaderTpl)
          , ("tpl/userpass",   userpassTpl)
-         
+
          , ("everything",     everythingPage)
          , ("ifheader",       ifheaderPage)
          , ("userpass",       userpassPage)
@@ -86,7 +86,7 @@ app :: SnapletInit App App
 app = makeSnaplet "app" "Test app" Nothing $ do
     h <- nestSnaplet "" heist $ heistInit "templates"
     setInterpreted h
-    
+
     cfg <- getSnapletUserConfig
 
     let authHeaders = [parserToAHW parseBasicAuthHeader]

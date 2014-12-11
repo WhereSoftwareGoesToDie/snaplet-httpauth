@@ -4,11 +4,11 @@ import Control.Lens
 import qualified Data.ByteString.Lazy as BSL
 import Data.List.Split
 import Data.Text (pack)
-import Test.Hspec
-import Test.HUnit
 import qualified Network.HTTP.Client as HC
 import qualified Network.HTTP.Types as HT
 import Network.Wreq
+import Test.Hspec
+import Test.HUnit
 
 import TestConfig
 
@@ -31,8 +31,8 @@ unurl = last . splitOn ("localhost:" ++ show appPort)
 -- | Catchall for confirming response HTTP code matches
 expectHttpCode :: HT.Status -> Either HC.HttpException (Response BSL.ByteString) -> Expectation
 expectHttpCode status r = if HT.statusIsSuccessful status
-	then expectGoodHttpCode status r
-	else expectBadHttpCode status r
+    then expectGoodHttpCode status r
+    else expectBadHttpCode status r
 
 -- | Only for good codes
 expectGoodHttpCode :: HT.Status -> Either HC.HttpException (Response BSL.ByteString) -> Expectation

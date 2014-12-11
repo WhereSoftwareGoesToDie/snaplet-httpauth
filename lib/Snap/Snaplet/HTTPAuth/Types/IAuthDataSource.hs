@@ -1,9 +1,9 @@
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE ImpredicativeTypes #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE ImpredicativeTypes        #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE Rank2Types                #-}
+{-# LANGUAGE TypeFamilies              #-}
 
 module Snap.Snaplet.HTTPAuth.Types.IAuthDataSource (
     IAuthDataSource (..),

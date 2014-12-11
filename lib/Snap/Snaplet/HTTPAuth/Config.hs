@@ -5,11 +5,11 @@ module Snap.Snaplet.HTTPAuth.Config (
     configToADT
 ) where
 
-import Prelude hiding (lookup)
 import Data.ByteString (ByteString)
 import qualified Data.Configurator.Types as CT
 import Data.List (lookup)
 import Data.Text (Text, isPrefixOf)
+import Prelude hiding (lookup)
 import Snap.Utilities.Configuration
 
 import Snap.Snaplet.HTTPAuth.Types
