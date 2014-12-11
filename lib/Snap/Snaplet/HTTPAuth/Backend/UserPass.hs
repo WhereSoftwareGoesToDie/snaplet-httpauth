@@ -1,7 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
 
 module Snap.Snaplet.HTTPAuth.Backend.UserPass (
     UserPass (..),
@@ -10,9 +7,8 @@ module Snap.Snaplet.HTTPAuth.Backend.UserPass (
 ) where
 
 import Prelude hiding (lookup)
-import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (HashMap (..), fromList, lookup)
+import Data.HashMap (fromList, lookup)
 import qualified Data.Configurator.Types as CT
 import Data.Text (Text)
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
@@ -29,10 +25,10 @@ data UserPass = UserPass {
 instance IAuthDataSource UserPass where
     getUser _ Nothing  = return Nothing
     getUser up (Just (AuthHeaderWrapper (_,gf,_))) = return $
-        if (gf "Username") == (Just . userpassUsername $ up)
-            then (Just $
+        if gf "Username" == (Just . userpassUsername $ up)
+            then Just $
                 AuthUser (C.pack . userpassUsername $ up)
-                         (fromList withPasswd) )
+                         (fromList withPasswd)
             else Nothing
       where
         withPasswd = case gf "Password" of
@@ -40,7 +36,7 @@ instance IAuthDataSource UserPass where
             Nothing -> []
     validateUser up _ (AuthUser username f) =
         (username == (C.pack . userpassUsername $ up)) &&
-        ((lookup "Password" f) == (Just . C.pack . userpassPassword $ up))
+        (lookup "Password" f == (Just . C.pack . userpassPassword $ up))
 
 -------------------------------------------------------------------------------
 cfgToUserPass :: [(Text, CT.Value)] -> UserPass

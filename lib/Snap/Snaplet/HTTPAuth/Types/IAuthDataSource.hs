@@ -2,8 +2,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeFamilies #-}
 
@@ -27,7 +25,7 @@ class IAuthDataSource r where
 ------------------------------------------------------------------------
 type CfgPair = (Text, CT.Value)
 
-data AuthDataWrapper = AuthDataWrapper ((Maybe AuthHeaderWrapper -> IO (Maybe AuthUser)), ([String] -> AuthUser -> Bool))
+data AuthDataWrapper = AuthDataWrapper (Maybe AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
 
 configToADT :: (IAuthDataSource r) => ([CfgPair] -> r) -> [CfgPair] -> AuthDataWrapper
 configToADT groupTranslator cfg = AuthDataWrapper (getUser b, validateUser b)

@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards, TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings        #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
 
 module Snap.Snaplet.HTTPAuth (
     AuthConfig (..),
@@ -22,15 +23,11 @@ module Snap.Snaplet.HTTPAuth (
 ) where
 
 import Control.Lens
+import Control.Monad
 import Control.Monad.State
-import Control.Monad.Trans.Class
-import qualified Data.ByteString.Char8 as C
 import Data.Monoid
-import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Heist
-import Heist.Splices
-import qualified Heist.Interpreted as I
 import qualified Text.XmlHtml as X
 
 import Snap.Snaplet
@@ -57,6 +54,6 @@ addHTTPAuthSplices h auth domainName = addConfig h sc
   where
     sc = mempty & scInterpretedSplices .~ intSpli
     intSpli = "currentUser" ## authCurrentUser
-    authCurrentUser =
-        lift $ currentUserInDomain domainName auth >>=
-        return . take 1 . repeat . X.TextNode . maybe "Nobody" (decodeUtf8 . authUserIdentity)
+    authCurrentUser = lift $
+        liftM (replicate 1 . X.TextNode . maybe "Nobody" (decodeUtf8 . authUserIdentity))
+              (currentUserInDomain domainName auth)

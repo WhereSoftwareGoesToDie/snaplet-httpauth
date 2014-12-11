@@ -2,8 +2,6 @@
 {-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE ImpredicativeTypes        #-}
 {-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE Rank2Types                #-}
 {-# LANGUAGE TypeFamilies              #-}
 
@@ -14,8 +12,7 @@ import Data.ByteString (ByteString)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C
 import Data.Map
-import Data.Maybe
-import Safe
+import Data.Maybe (fromMaybe)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader.Base
 
@@ -27,12 +24,12 @@ instance AuthHeader BasicAuthHeader where
     authHeaderField (BasicAuthHeader m) f = lookup f m
     toHeader x = C.concat [C.pack "Basic ", B64.encode $ C.pack (f "Username" ++ ":" ++ f "Password")]
       where
-        f = maybe "" id . authHeaderField x
+        f = fromMaybe "" . authHeaderField x
 
 parseBasicAuthHeader
     :: ByteString
     -> Maybe BasicAuthHeader
-parseBasicAuthHeader x = case (C.split ' ' x) of
+parseBasicAuthHeader x = case C.split ' ' x of
     ("Basic":x':_) ->
         case B64.decode x' of
             Left _ -> Nothing

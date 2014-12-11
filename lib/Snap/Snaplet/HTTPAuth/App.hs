@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards, TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings        #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
 
 module Snap.Snaplet.HTTPAuth.App (
     withAuth,
@@ -11,12 +12,10 @@ import Prelude hiding (lookup)
 import Control.Lens
 import Control.Monad.State
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (lookup)
 import Data.List hiding (lookup)
 import Snap.Core
 import Snap.Snaplet
 
-import Snap.Snaplet.HTTPAuth.Backend
 import Snap.Snaplet.HTTPAuth.Types
 
 --------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ withAuth
     -> SnapletLens b AuthConfig
     -> Handler b b ()
     -> Handler b b ()
-withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn [] auth ifSuccessful
+withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn [] auth ifSuccessful
 
 -- | Public method: Perform authentication passthrough.
 -- This version uses roles that are derived from the AuthDomain, PLUS sets of
@@ -63,24 +62,24 @@ withAuth'
     -> [String]
     -> Handler b b ()
     -> Handler b b ()
-withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuth_Domain dn addRoles auth ifSuccessful
+withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn addRoles auth ifSuccessful
 
 -- | Internal method: Perform authentication passthrough with a known 
 -- AuthDomain and list of additional roles.
-withAuth_Domain
+withAuthDomain
     :: String
     -> [String]
     -> SnapletLens b AuthConfig
     -> Handler b b ()
     -> Maybe AuthDomain
     -> Handler b b ()
-withAuth_Domain dn addRoles auth ifSuccessful ad = do
+withAuthDomain dn addRoles auth ifSuccessful ad =
     case ad of
         Nothing -> throwDenied
-        Just ad'@(AuthDomain _ s) -> do
+        Just ad'@(AuthDomain _ _) -> do
             rq <- getRequest
             h <- withTop auth $ view authHeaders
-            let h' = (parseAuthorizationHeader h $ getHeader "Authorization" rq)
+            let h' = parseAuthorizationHeader h $ getHeader "Authorization" rq
             testResult <- liftIO $ testAuthHeader ad' addRoles h'
             if testResult
                 then
@@ -99,7 +98,7 @@ authDomain domainName = do
     x <- get
     return $ find domainMatch (_authDomains x)
   where
-    domainMatch d = domainName == (authDomainName d)
+    domainMatch d = domainName == authDomainName d
 
 --------------------------------------------------------------------------------
 -- | Internal method: Throw a 401 error response.
@@ -107,7 +106,7 @@ throwChallenge
     :: String
     -> Handler b b ()
 throwChallenge domainName = do
-    modifyResponse $ (setResponseStatus 401 "Unauthorized") . (setHeader "WWW-Authenticate" $ C.pack realm)
+    modifyResponse $ setResponseStatus 401 "Unauthorized" . setHeader "WWW-Authenticate" (C.pack realm)
     writeBS "Tell me about yourself"
   where
     realm = "Basic realm=" ++ domainName

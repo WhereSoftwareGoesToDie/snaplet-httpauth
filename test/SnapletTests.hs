@@ -15,131 +15,86 @@ import TestWebdriverConfig
 import TestWebdriverHelpers
 
 main :: IO ()
-main = do
-    void $ withServer appPort "test/data/TestingConfig" $ do
-        res <- hspec suite
-        return res
+main = void $ withServer appPort "test/data/TestingConfig" $ hspec suite
 
 suite :: Spec
 suite = do
     describe "public pages" $ do
-        it "fetches a page without auth" $ do
+        it "fetches a page without auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ url "/pub"
                 wdIsUrl "/pub"
-
-                b <- wdGetElems "body" 1
-
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Hello world"
-
+                "body" `contentsShouldBe` "Hello world"
                 closeSession
-        it "fetches a tpl with auth" $ do
+        it "fetches a tpl with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ url "/tpl/pub"
                 wdIsUrl "/tpl/pub"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Anonymous"
-
+                "h1" `contentsShouldBe` "Anonymous"
                 closeSession
 
     describe "auth everything" $ do
-        it "fetches a page with auth" $ do
+        it "fetches a page with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ url "/everything"
                 wdIsUrl "/everything"
-
-                b <- wdGetElems "body" 1
-
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Hello everything"
-
+                "body" `contentsShouldBe` "Hello everything"
                 closeSession
-        it "fetches a tpl without auth" $ do
+        it "fetches a tpl without auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ url "/tpl/everything"
                 wdIsUrl "/tpl/everything"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Anonymous"
-
+                "h1" `contentsShouldBe` "Anonymous"
                 closeSession
-        it "fetches a tpl with auth" $ do
+        it "fetches a tpl with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/tpl/everything" "hello" "world"
                 wdIsUrl "/tpl/everything"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "hello"
-
+                "h1" `contentsShouldBe` "hello"
                 closeSession
-        it "fetches a tpl with auth 2" $ do
+        it "fetches a tpl with auth 2" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/tpl/everything" "foo" "bar"
                 wdIsUrl "/tpl/everything"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "foo"
-
+                "h1" `contentsShouldBe` "foo"
                 closeSession
 
     describe "auth ifheader" $ do
-        it "fetches a page with auth" $ do
+        it "fetches a page with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/ifheader" "foo" "bar"
                 wdIsUrl "/ifheader"
-
-                b <- wdGetElems "body" 1
-
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Hello ifheader"
-
+                "body" `contentsShouldBe` "Hello ifheader"
                 closeSession
-        it "fetches a tpl with auth" $ do
+        it "fetches a tpl with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/tpl/ifheader" "hello" "world"
                 wdIsUrl "/tpl/ifheader"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "hello"
-
+                "h1" `contentsShouldBe` "hello"
                 closeSession
-        it "fetches a tpl with auth 2" $ do
+        it "fetches a tpl with auth 2" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/tpl/ifheader" "foo" "bar"
                 wdIsUrl "/tpl/ifheader"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "foo"
-
+                "h1" `contentsShouldBe` "foo"
                 closeSession
 
     describe "auth userpass" $ do
-        it "fetches a page with auth" $ do
+        it "fetches a page with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/userpass" "foo" "bar"
                 wdIsUrl "/userpass"
-
-                b <- wdGetElems "body" 1
-
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "Hello userpass"
-
+                "body" `contentsShouldBe` "Hello userpass"
                 closeSession
-        it "fetches a tpl with auth" $ do
+        it "fetches a tpl with auth" $
             void $ runSession webdriverCfg $ do
                 openPage $ urlWithCreds "/tpl/userpass" "foo" "bar"
                 wdIsUrl "/tpl/userpass"
-
-                b <- wdGetElems "h1" 1
-                tx <- getText $ head b
-                liftIO $ tx `shouldBe` pack "foo"
-
+                "h1" `contentsShouldBe` "foo"
                 closeSession
+
+contentsShouldBe :: String -> String -> WD ()
+contentsShouldBe selector expected = do
+    b <- wdGetElems selector 1
+    tx <- getText $ head b
+    liftIO $ tx `shouldBe` pack expected

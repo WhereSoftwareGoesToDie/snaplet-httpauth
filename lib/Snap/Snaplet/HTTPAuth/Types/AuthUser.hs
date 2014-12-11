@@ -1,6 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TemplateHaskell   #-}
 
 module Snap.Snaplet.HTTPAuth.Types.AuthUser (
     AuthUser (..)

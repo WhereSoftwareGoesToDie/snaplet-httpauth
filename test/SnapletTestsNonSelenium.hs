@@ -9,6 +9,7 @@ import Control.Monad.IO.Class
 import qualified Data.ByteString.Base64 as BS64
 import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy as BSL
+import Data.Maybe (fromMaybe)
 import Data.Text hiding (head)
 import qualified Network.HTTP.Client as HC
 import qualified Network.HTTP.Types as HT
@@ -21,14 +22,11 @@ import TestConfig
 import TestHelpers
 
 main :: IO ()
-main = do
-    void $ withServer appPort "test/data/TestingConfig" $ do
-        res <- hspec suite
-        return res
+main = void $ withServer appPort "test/data/TestingConfig" $ hspec suite
 
 suite :: Spec
 suite = do
-    describe "no auth" $ do
+    describe "no auth" $
         it "fetches a page without auth" $
             req "/pub" "get" Nothing Nothing >>=
             expectHttpCode HT.ok200
@@ -74,7 +72,7 @@ req u method postData authStr = try run
   where
     run = case method of
         "get"  -> getWith opts u'
-        "post" -> postWith opts u' (C.pack $ maybe "" id $ postData)
+        "post" -> postWith opts u' (C.pack $ fromMaybe "" postData)
         _ -> error "Not a valid request verb"
     u' = url u
     opts = case authStr of

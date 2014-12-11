@@ -2,8 +2,6 @@
 {-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE ImpredicativeTypes        #-}
 {-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE Rank2Types                #-}
 {-# LANGUAGE TypeFamilies              #-}
 

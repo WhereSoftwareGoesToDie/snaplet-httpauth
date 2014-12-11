@@ -1,0 +1,6 @@
+SELENIUM_PID
+dist/*
+chromedriver
+selenium-server-standalone.jar
+cabal.sandbox.config
+.cabal-sandbox/*

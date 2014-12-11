@@ -7,17 +7,12 @@ module Snap.Snaplet.HTTPAuth.Config (
 
 import Prelude hiding (lookup)
 import Data.ByteString (ByteString)
-import qualified Data.Configurator as C
 import qualified Data.Configurator.Types as CT
-import Data.List (groupBy, intercalate, find, sortBy, lookup)
-import Data.HashMap.Strict (toList)
-import Data.Text (Text, isPrefixOf, splitOn, pack, unpack)
-import GHC.TypeLits
+import Data.List (lookup)
+import Data.Text (Text, isPrefixOf)
+import Snap.Utilities.Configuration
 
 import Snap.Snaplet.HTTPAuth.Types
-import Snap.Snaplet.HTTPAuth.Backend
-
-import Snap.Utilities.Configuration
 
 ------------------------------------------------------------------------------
 type CfgPair = (Text, CT.Value)
@@ -32,14 +27,14 @@ getAuthManagerCfg
     -> IO AuthConfig
 getAuthManagerCfg ahp awp config = do
     groups <- extractGroups isAD config
-    return . (AuthConfig ahp) . map (evalGroup awp) $ groups
+    return . AuthConfig ahp . map (evalGroup awp) $ groups
   where
     isAD (k, _) = "AuthDomains." `isPrefixOf` k
 
 ------------------------------------------------------------------------------
 -- | Evaluate a single config group.
 evalGroup :: [AuthWrapPairs] -> [CfgPair] -> AuthDomain
-evalGroup awp g = withValidGroup "AuthenticationType" processGroup g
+evalGroup awp = withValidGroup "AuthenticationType" processGroup
   where
     processGroup name gType gCfg =
         case lookup gType awp of

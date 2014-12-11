@@ -1,7 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
 
 module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
     AllowEverythingIfHeader (..),
@@ -9,9 +6,9 @@ module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
     cfgToAllowEverythingIfHeader
 ) where
 
-import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (HashMap (..), fromList)
+import Data.HashMap (fromList)
+import Data.Maybe (fromMaybe)
 import qualified Data.Configurator.Types as CT
 import Data.Text (Text)
 
@@ -24,7 +21,7 @@ data AllowEverythingIfHeader = AllowEverythingIfHeader
 
 instance IAuthDataSource AllowEverythingIfHeader where
     getUser _ Nothing                             = return Nothing
-    getUser _ (Just (AuthHeaderWrapper (_,gf,_))) = return . Just $ AuthUser (C.pack . maybe "Unknown" id . gf $ "Username") (fromList [])
+    getUser _ (Just (AuthHeaderWrapper (_,gf,_))) = return . Just $ AuthUser (C.pack . fromMaybe "Unknown" . gf $ "Username") (fromList [])
     validateUser _ _ _                            = True
 
 -------------------------------------------------------------------------------
