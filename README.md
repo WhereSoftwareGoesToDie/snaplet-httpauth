@@ -185,3 +185,68 @@ We check to see if the provided username matches the one in the UserPass object.
 `validateUser` validates a user extracted from Authorization headers against your IAuthDataSource object and a list of extra roles which your handler can optionally pass to you. UserPass has no concept of roles, so we're ignoring those in this case.
 
 The implementation of `validateUser` is pretty simple. It validates the user if the provided username matches the username in the UserPass object, **and** if the provided password matches the password in the UserPass object.
+
+### Writing your own Authorization header parsers
+
+An Authorization header parser is comprised of three components:
+
+* a data type to contain information parsed out of Authorization headers
+* an instance of class AuthHeader for your data type, with implementations of its `authHeaderType`, `authHeaderField` and `toHeader` methods
+* the actual parser method, with type signature `ByteString -> Maybe YourCustomHeaderType`
+
+As an example, we'll look at the BasicAuthHeader parser, which parses Authorization headers with the Basic authentication type.
+
+The data type is pretty simple:
+
+```haskell
+data BasicAuthHeader = BasicAuthHeader (Map String String)
+```
+
+We're only going to store two keys in here, Username and Password. It might be more efficient not to use a Map, but this model is adaptable to other Authorization header types that contain more information.
+
+The instance of AuthHeader is also pretty simple:
+
+```haskell
+import qualified Data.ByteString.Char8 as C
+import Data.Maybe (fromMaybe)
+-- put the import above at top of module
+
+instance AuthHeader BasicAuthHeader where
+    authHeaderType _ = "BasicAuth"
+    authHeaderField (BasicAuthHeader m) f = lookup f m
+    toHeader x = C.concat [C.pack "Basic ", B64.encode $ C.pack (f "Username" ++ ":" ++ f "Password")]
+      where
+        f = fromMaybe "" . authHeaderField x
+```
+
+The `authHeaderType` gives us a String representing what kind of header this is, so HTTPAuth backends can identify them if needed. This is required because we're going to be packing all these methods into `AuthHeaderWrapper` objects, which are generic in nature and hide the AuthHeader object within.
+
+`authHeaderField` just looks up the field in this header matching a particular String key. It returns a Maybe String, meaning that it's valid to not return anything.
+
+`toHeader` reconstitutes the header back into a ByteString that can be passed to another HTTP request, which is necessary if we need to use it for authentication against other services. As you can see, we're fetching the Username and Password fields, packing them up with a colon separator and base64 encoding the lot, before dropping Basic on the front, as per the [Basic Authentication specification](http://tools.ietf.org/html/rfc2617).
+
+The parser is a little more complex, but you should be able to follow how it works.
+
+```haskell
+parseBasicAuthHeader
+    :: ByteString
+    -> Maybe BasicAuthHeader
+parseBasicAuthHeader x = case C.split ' ' x of
+    ("Basic":x':_) ->
+        case B64.decode x' of
+            Left _ -> Nothing
+            Right x'' ->
+                case C.split ':' x'' of
+                    (u:p:_) -> let
+                        hMap = fromList [("Username", C.unpack u),
+                                         ("Password", C.unpack p)]
+                        in Just $ BasicAuthHeader hMap
+                    _ -> Nothing
+    _ -> Nothing
+```
+
+First, we're checking to make sure that the header starts with the text "Basic " – we're splitting on the separating space to determine that this is the case. Since spaces are not part of base64 encoding, we can work on decoding the next chunk.
+
+If we can decode the base64-encoded chunk, we can then split on the separating colon, fetch the username and password, unpack both, and return them as part of our BasicAuthHeader object.
+
+You might need to do some more complex parsing code for things like token-based authentication headers, but tools like Attoparsec/Trifecta would be suitable for extracting data from those.
