@@ -30,6 +30,6 @@ instance IAuthDataSource AllowEverything where
 
 -------------------------------------------------------------------------------
 cfgToAllowEverything
-	:: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
-	-> AllowEverything -- ^ An AllowEverything backend for a particular HTTPAuth domain.
+    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
+    -> AllowEverything -- ^ An AllowEverything backend for a particular HTTPAuth domain.
 cfgToAllowEverything _ = AllowEverything

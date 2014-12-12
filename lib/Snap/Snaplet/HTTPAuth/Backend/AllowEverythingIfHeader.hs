@@ -30,6 +30,6 @@ instance IAuthDataSource AllowEverythingIfHeader where
 
 -------------------------------------------------------------------------------
 cfgToAllowEverythingIfHeader
-	:: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
-	-> AllowEverythingIfHeader -- ^ An AllowEverythingIfHeader backend for a particular HTTPAuth domain.
+    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
+    -> AllowEverythingIfHeader -- ^ An AllowEverythingIfHeader backend for a particular HTTPAuth domain.
 cfgToAllowEverythingIfHeader _ = AllowEverythingIfHeader

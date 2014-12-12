@@ -2,16 +2,10 @@
 
 module Main where
 
-import Control.Exception
-import Control.Lens
 import Control.Monad
 import Control.Monad.IO.Class
-import qualified Data.ByteString.Base64 as BS64
-import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy as BSL
-import Data.Maybe (fromMaybe)
 import Data.Text hiding (head)
-import qualified Network.HTTP.Client as HC
 import qualified Network.HTTP.Types as HT
 import Network.Wreq
 import Test.Hspec
@@ -66,20 +60,3 @@ suite = do
         it "fetches a tpl with auth" $
             req "/tpl/userpass" "get" Nothing (Just $ packBasic "foo" "bar") >>=
             expectHttpCodeWrappedContent HT.ok200 "h1" "foo"
-
-packBasic :: String -> String -> String
-packBasic a b = "Basic " ++ C.unpack (BS64.encode (C.pack (a ++ ":" ++ b)))
-
-req :: String -> String -> Maybe String -> Maybe String -> IO (Either HC.HttpException (Response BSL.ByteString))
-req u method postData authStr = try run
-  where
-    run = case method of
-        "get"  -> getWith opts u'
-        "post" -> postWith opts u' (C.pack $ fromMaybe "" postData)
-        _ -> error "Not a valid request verb"
-    u' = url u
-    opts = case authStr of
-        Nothing -> opts'
-        Just x  -> opts' & header "Authorization" .~ [C.pack x]
-    opts' = defaults
-        & header "Accept" .~ [C.pack "*/*"]

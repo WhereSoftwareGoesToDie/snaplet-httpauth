@@ -37,10 +37,10 @@ data AuthDataWrapper = AuthDataWrapper (Maybe AuthHeaderWrapper -> IO (Maybe Aut
 -- | Builds an AuthDataWrapper out of configuration information.
 -- Most often used as a partial method when setting up your site.
 configToADT
-	:: (IAuthDataSource r)
-	=> ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an object of class IAuthDataSource.
-	-> [CfgPair] -- ^ A list of Configurator pairs.
-	-> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
+    :: (IAuthDataSource r)
+    => ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an object of class IAuthDataSource.
+    -> [CfgPair] -- ^ A list of Configurator pairs.
+    -> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
 configToADT groupTranslator cfg = AuthDataWrapper (getUser b, validateUser b)
     where
         b = groupTranslator cfg
