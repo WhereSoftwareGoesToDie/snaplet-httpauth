@@ -71,7 +71,7 @@ defaultAuthHeaders = [parserToAHW parseBasicAuthHeader]
 -- | Set up default configuration for all the AuthDomains we have
 -- implemented in HTTPAuth Snaplet.
 -- Covers AllowEverything, IfHeader, and UserPass backends.
-defaultAuthDomains :: [AuthDomain]
+defaultAuthDomains :: [(String, [CfgPair] -> AuthDataWrapper)]
 defaultAuthDomains = [ ("AllowEverything", configToADT cfgToAllowEverything)
                      , ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
                      , ("UserPass",        configToADT cfgToUserPass)]
