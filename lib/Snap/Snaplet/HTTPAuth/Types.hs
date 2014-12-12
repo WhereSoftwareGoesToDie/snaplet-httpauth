@@ -29,6 +29,8 @@ module Snap.Snaplet.HTTPAuth.Types (
 import Control.Lens
 import Data.ByteString (ByteString)
 
+import Snap.Snaplet.HTTPAuth.Backend (cfgToAllowEverything, cfgToAllowEverythingIfHeader, cfgToUserPass)
+
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser
 import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
