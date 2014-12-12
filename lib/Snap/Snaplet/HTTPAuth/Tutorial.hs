@@ -49,7 +49,27 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
 -- * Application Setup
 
-{-$ In the definition of `app` in Site.hs, you'll need to configure it something like the following:
+{-$ In the definition of `app` in Site.hs, you'll need to invoke your snaplet like this, if you want the default (bare bones) configuration.
+
+    > app :: SnapletInit App App
+    > app = makeSnaplet "app" "An snaplet example application." Nothing $ do
+    >
+    >     h <- nestSnaplet "" heist $ heistInit' "templates" hc
+    >     setInterpreted h
+    >
+    >     s <- nestSnaplet "sess" sess $
+    >          initCookieSessionManager "site_key.txt" "sess" (Just 3600)
+    >
+    >     cfg <- getSnapletUserConfig
+    >     ac <- liftIO $ getAuthManagerCfg defaultAuthHeaders defaultAuthDomains cfg
+    >     a <- nestSnaplet "httpauth" httpauth $ authInit ac
+    >
+    >     addHTTPAuthSplices h httpauth "display"
+    >     addRoutes routes
+    >
+    >     return $ App h s a
+
+    If you want to use custom sets of AuthHeader parsers and HTTPAuth backends, you'll modify it slightly and use something like this:
 
     > app :: SnapletInit App App
     > app = makeSnaplet "app" "An snaplet example application." Nothing $ do
@@ -71,7 +91,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >     addHTTPAuthSplices h httpauth "display"
     >     addRoutes routes
     >
-    >     return $ App h s a ss rc
+    >     return $ App h s a
 
     Note how `getAuthManagerCfg` takes three different configuration objects:
 

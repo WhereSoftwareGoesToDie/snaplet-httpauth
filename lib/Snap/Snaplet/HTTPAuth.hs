@@ -19,7 +19,10 @@ module Snap.Snaplet.HTTPAuth (
     configToADT,
     cfgToAllowEverything,
     cfgToAllowEverythingIfHeader,
-    cfgToUserPass
+    cfgToUserPass,
+
+    defaultAuthHeaders,
+    defaultAuthDomains
 ) where
 
 import Control.Lens
