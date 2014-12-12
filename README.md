@@ -111,6 +111,77 @@ Note that the domain name used in withAuth directly maps to the domain names in 
 
 ## Extending
 
-This section is yet to be populated, but will contain details of how to build your own Authorization header parsers and HTTPAuth backends.
+Here are details on how to write your own HTTPAuth backend. Details of how to build your own Authorization header parsers are yet to come.
 
+### Writing your own HTTPAuth Backend
 
+A HTTPAuth backend is comprised of three parts:
+
+* a data type to contain configuration for the backend you are connecting to
+* an instance of IAuthDataSource for your data type, with implementations of its `getUser` and `validateUser` methods
+* a function to convert configuration data from the site's configuration file, expressed as `[(Text, Data.Configurator.Types.Value)]`, to your data type
+
+As an example, we'll look at the UserPass backend, which stores a single username and password, and authenticates against them.
+
+The data type in this case is pretty simple:
+
+```haskell
+data UserPass = UserPass {
+    userpassUsername :: String,
+    userpassPassword :: String
+}
+```
+
+Similarly, the function to convert configuration data to a UserPass is also pretty simple.
+
+```haskell
+import qualified Data.Configurator.Types as CT
+-- put the import above at top of module
+
+cfgToUserPass
+    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
+    -> UserPass -- ^ A UserPass backend for a particular HTTPAuth domain.
+cfgToUserPass cfg =
+    let
+        u = cfgLookupWithDefault "Username" "" stringValue cfg
+        p = cfgLookupWithDefault "Password" "" stringValue cfg
+        in
+            UserPass u p
+```
+
+As you can see, we're just pulling the Username and Password keys from the configuration, converting them to strings if they're found, and then passing them as parameters to the UserPass object.
+
+(`cfgLookupWithDefault` is a helper method from [snap-configuration-utilities](http://hackage.haskell.org/package/snap-configuration-utilities), that takes a key to look up, a default value to set, and a method to extract the value if found, and applies them to the configuration.)
+
+The instance for IAuthDataSource is a little more complex.
+
+```haskell
+import qualified Data.ByteString.Char8 as C
+-- put the import above at top of module
+
+instance IAuthDataSource UserPass where
+    getUser _ Nothing  = return Nothing
+    getUser up (Just (AuthHeaderWrapper (_,gf,_))) = return $
+        if gf "Username" == (Just . userpassUsername $ up)
+            then Just $
+                AuthUser (C.pack . userpassUsername $ up)
+                         (fromList withPasswd)
+            else Nothing
+      where
+        withPasswd = case gf "Password" of
+            Just p  -> [("Password", C.pack p)]
+            Nothing -> []
+    validateUser up _ (AuthUser username f) =
+        (username == (C.pack . userpassUsername $ up)) &&
+        (lookup "Password" f == (Just . C.pack . userpassPassword $ up))
+```
+
+`getUser` takes a UserPass object and a Maybe AuthHeaderWrapper. If we receive Nothing for the latter, we didn't successfully parse an Authorization header, and therefore we have no user to return.
+
+If we got a Just AuthHeaderWrapper, we use pattern matching to get access to its component methods. We only need the 2nd item, to get at the Authorization header's fields.
+
+We check to see if the provided username matches the one in the UserPass object. If it does, we return an AuthUser object, with the provided username, but we set its password to the one from the Authorization header. This makes sure that `validateUser` will work correctly.
+
+`validateUser` validates a user extracted from Authorization headers against your IAuthDataSource object and a list of extra roles which your handler can optionally pass to you. UserPass has no concept of roles, so we're ignoring those in this case.
+
+The implementation of `validateUser` is pretty simple. It validates the user if the provided username matches the username in the UserPass object, **and** if the provided password matches the password in the UserPass object.
