@@ -2,12 +2,14 @@ module TestHelpers where
 
 import Control.Lens
 import qualified Data.ByteString.Lazy as BSL
+import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.List.Split
 import Data.Text (pack)
 import qualified Network.HTTP.Client as HC
 import qualified Network.HTTP.Types as HT
 import Network.Wreq
 import Test.Hspec
+import Test.Hspec.Expectations
 import Test.HUnit
 
 import TestConfig
@@ -46,3 +48,21 @@ expectBadHttpCode status r = case r of
     Left (HC.StatusCodeException s _ _) -> s `shouldBe` status
     Right r'                            -> (r' ^. responseStatus) `shouldBe` status
     Left ex                             -> error . show $ ex
+
+-- | Catchall for confirming response HTTP code matches
+expectHttpCodeContent :: HT.Status -> String -> Either HC.HttpException (Response BSL.ByteString) -> Expectation
+expectHttpCodeContent status content r = case r of
+    Right r' -> do
+    	(r' ^. responseStatus) `shouldBe` status
+    	BSL8.unpack (r' ^. responseBody)   `shouldBe` content
+    Left ex  -> error . show $ ex
+
+-- | Catchall for confirming response HTTP code matches
+expectHttpCodeWrappedContent :: HT.Status -> String -> String -> Either HC.HttpException (Response BSL.ByteString) -> Expectation
+expectHttpCodeWrappedContent status wrap content r = case r of
+    Right r' -> do
+    	(r' ^. responseStatus) `shouldBe` status
+    	BSL8.unpack (r' ^. responseBody) `shouldContain` c'
+    Left ex  -> error . show $ ex
+  where
+  	c' = concat ["<", wrap, ">", content, "</", wrap, ">"]

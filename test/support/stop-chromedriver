@@ -1,4 +1,0 @@
-#!/bin/bash
-
-kill $(cat SELENIUM_PID)
-rm SELENIUM_PID

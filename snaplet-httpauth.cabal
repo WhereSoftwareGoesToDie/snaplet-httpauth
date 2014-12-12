@@ -59,11 +59,11 @@ library
   hs-source-dirs:      lib
   default-language:    Haskell2010
 
-test-suite snaplet-tests
+test-suite snaplet-tests-frontend
   hs-source-dirs:      lib test
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
-  main-is:             SnapletTests.hs
+  main-is:             SnapletTestsFrontend.hs
   if flag(network-uri)
     build-depends: network-uri >= 2.6, network >= 2.6
   else
@@ -77,6 +77,7 @@ test-suite snaplet-tests
                      , hashmap
                      , heist
                      , hspec
+                     , hspec-expectations
                      , http-client
                      , http-types
                      , HUnit
@@ -92,15 +93,14 @@ test-suite snaplet-tests
                      , text
                      , transformers
                      , unordered-containers
-                     , webdriver
                      , wreq
                      , xmlhtml
 
-test-suite snaplet-tests-non-selenium
+test-suite snaplet-tests-response
   hs-source-dirs:      lib test
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
-  main-is:             SnapletTestsNonSelenium.hs
+  main-is:             SnapletTestsResponse.hs
   if flag(network-uri)
     build-depends: network-uri >= 2.6, network >= 2.6
   else
@@ -114,6 +114,7 @@ test-suite snaplet-tests-non-selenium
                      , hashmap
                      , heist
                      , hspec
+                     , hspec-expectations
                      , http-client
                      , http-types
                      , HUnit
@@ -149,7 +150,6 @@ executable uat-snaplet-tests
                      , directory
                      , hashmap
                      , heist
-                     , hspec
                      , http-client
                      , http-types
                      , HUnit

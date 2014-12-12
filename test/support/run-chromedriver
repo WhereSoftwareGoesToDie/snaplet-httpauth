@@ -1,5 +1,0 @@
-#!/bin/bash
-
-java -jar selenium-server-standalone.jar -Dwebdriver.chrome.driver=./chromedriver &
-pid=$!
-echo $pid > SELENIUM_PID
