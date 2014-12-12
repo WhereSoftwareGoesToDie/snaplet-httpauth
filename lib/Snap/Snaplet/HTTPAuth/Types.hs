@@ -28,6 +28,8 @@ module Snap.Snaplet.HTTPAuth.Types (
 
 import Control.Lens
 import Data.ByteString (ByteString)
+import qualified Data.Configurator.Types as CT
+import Data.Text (Text)
 
 import Snap.Snaplet.HTTPAuth.Backend (cfgToAllowEverything, cfgToAllowEverythingIfHeader, cfgToUserPass)
 
@@ -71,7 +73,7 @@ defaultAuthHeaders = [parserToAHW parseBasicAuthHeader]
 -- | Set up default configuration for all the AuthDomains we have
 -- implemented in HTTPAuth Snaplet.
 -- Covers AllowEverything, IfHeader, and UserPass backends.
-defaultAuthDomains :: [(String, [CfgPair] -> AuthDataWrapper)]
+defaultAuthDomains :: [(String, [(Text, CT.Value)] -> AuthDataWrapper)]
 defaultAuthDomains = [ ("AllowEverything", configToADT cfgToAllowEverything)
                      , ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
                      , ("UserPass",        configToADT cfgToUserPass)]
