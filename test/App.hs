@@ -33,11 +33,9 @@ type AppHandler = Handler App App
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("tpl/pub",        publicTpl)
-         , ("tpl/everything", everythingTpl)
          , ("tpl/ifheader",   ifheaderTpl)
          , ("tpl/userpass",   userpassTpl)
 
-         , ("everything",     everythingPage)
          , ("ifheader",       ifheaderPage)
          , ("userpass",       userpassPage)
          , ("pub",            publicPage) ]
