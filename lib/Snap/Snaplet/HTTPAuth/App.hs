@@ -8,6 +8,7 @@ module Snap.Snaplet.HTTPAuth.App (
     currentUserInDomain
 ) where
 
+import Control.Applicative
 import Control.Lens
 import Control.Monad.State
 import qualified Data.ByteString.Char8 as C
@@ -21,73 +22,87 @@ import Snap.Snaplet.HTTPAuth.Types
 --------------------------------------------------------------------------------
 -- | Public method: Get current user from Auth headers.
 currentUser
-    :: SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    :: SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
     -> Handler b b (Maybe AuthUser)
 currentUser = currentUserInDomain "display"
 
 -- | Public method: Get current user from Auth headers within an arbitrary
 -- domain.
 currentUserInDomain
-    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
-    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined
+              --   in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
     -> Handler b b (Maybe AuthUser)
-currentUserInDomain domainName auth = do
-    x <- withTop auth (authDomain domainName)
+currentUserInDomain domain_name auth = do
+    x <- withTop auth $ authDomain domain_name
     h <- withTop auth $ view authHeaders
     case x of
         Nothing -> return Nothing
         Just d  -> currentUser' h d
   where
-    currentUser' h (AuthDomain _ (AuthDataWrapper (gu, _))) =
-        getRequest >>= liftIO . gu . parseAuthorizationHeader h . getHeader "Authorization"
+    currentUser' fs (AuthDomain _ (AuthDataWrapper (gu, _))) = do
+        maybe_h <- getHeader "Authorization" <$> getRequest
+        case maybe_h >>= parseAuthorizationHeader fs of
+            Nothing -> return Nothing
+            Just h  -> liftIO $ gu h
 
 --------------------------------------------------------------------------------
--- | Public method: Perform authentication passthrough.
+-- | Perform authentication passthrough.
+--
 -- This version only uses roles that are derived from the AuthDomain itself.
 withAuth
-    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
-    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined
+              -- in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
     -> Handler b b () -- ^ Handler to run if authentication was successful
-    -> Handler b b () -- ^ If the user was successfully authenticated, the provided handler will be run. Otherwise, internal handlers returning a 401 Unauthorized (when no header was found) or a 403 Access Denied (when a header was found but not authorised) HTTP status code will be returned.
-withAuth dn auth ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn [] auth ifSuccessful
+    -> Handler b b () -- ^ If the user was successfully authenticated, the
+                      --    provided handler will be run. Otherwise, internal
+                      --    handlers returning a 401 Unauthorized (when no
+                      --    header was found) or a 403 Access Denied (when a
+                      --    header was found but not authorised) HTTP status
+                      --    code will be returned.
+withAuth dn auth ifSuccessful =
+    withTop auth (authDomain dn) >>= withAuthDomain dn [] auth ifSuccessful
 
--- | Public method: Perform authentication passthrough.
+-- | Perform authentication passthrough.
+--
 -- This version uses roles that are derived from the AuthDomain, PLUS sets of
 -- additional roles defined in the addRoles list.
 -- This allows us to define roles that the current user must have be present
 -- to work on particular assets, on top of ones already present.
 withAuth'
-    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
-    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
-    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined
+              --   in the AuthDomains config
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
+    -> [String] -- ^ List of additional roles to add to this domain to
+                --   authenticate with
     -> Handler b b () -- ^ Handler to run if authentication was successful
     -> Handler b b ()
-withAuth' dn auth addRoles ifSuccessful = withTop auth (authDomain dn) >>= withAuthDomain dn addRoles auth ifSuccessful
+withAuth' dn auth addRoles ifSuccessful =
+    withTop auth (authDomain dn)
+    >>= withAuthDomain dn addRoles auth ifSuccessful
 
 -- | Internal method: Perform authentication passthrough with a known
 -- AuthDomain and list of additional roles.
 withAuthDomain
-    :: String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
-    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
-    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
+    :: String -- ^ HTTPAuth domain name matching one of the domains defined in
+              --   the AuthDomains config
+    -> [String] -- ^ List of additional roles to add to this domain to
+                --   authenticate with
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
     -> Handler b b () -- ^ Handler to run if authentication was successful
-    -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the supplied domain name
+    -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
+                        --   supplied domain name
     -> Handler b b ()
-withAuthDomain dn addRoles auth ifSuccessful ad =
-    case ad of
-        Nothing -> throwDenied
-        Just ad'@(AuthDomain _ _) -> do
-            rq <- getRequest
-            h <- withTop auth $ view authHeaders
-            let h' = parseAuthorizationHeader h $ getHeader "Authorization" rq
-            testResult <- liftIO $ testAuthHeader ad' addRoles h'
-            if testResult
-                then
-                    ifSuccessful
-                else
-                    case h' of
-                        Nothing -> throwChallenge dn
-                        _       -> throwDenied
+withAuthDomain _ _ _ _ Nothing = throwDenied
+withAuthDomain dn add_roles auth success_k (Just ad) = do
+    fs <- withTop auth $ view authHeaders
+    maybe_hdr <- getHeader "Authorization" <$> getRequest
+    case maybe_hdr >>= parseAuthorizationHeader fs of
+        Nothing -> throwChallenge dn
+        Just h  -> do
+            success <- liftIO $ testAuthHeader ad add_roles h
+            if success then success_k else throwDenied
 
 --------------------------------------------------------------------------------
 -- | Internal method: Get AuthDomain by name
@@ -124,7 +139,7 @@ throwDenied = do
 testAuthHeader
     :: AuthDomain -- ^ An AuthDomain object determined by the supplied domain name
     -> [String] -- ^ List of additional roles to add to this domain to authenticate with
-    -> Maybe AuthHeaderWrapper -- ^ A potential AuthHeaderWrapper obtained by an attempt to parse the Authorization header
+    -> AuthHeaderWrapper -- ^ An AuthHeaderWrapper obtained by successfully parsing the Authorization header
     -> IO Bool
 testAuthHeader (AuthDomain _ (AuthDataWrapper (gu, vu))) addRoles h = do
     x <- gu h

@@ -17,7 +17,6 @@ module Snap.Snaplet.HTTPAuth (
     parseAuthorizationHeader,
 
     configToADT,
-    cfgToAllowEverything,
     cfgToAllowEverythingIfHeader,
     cfgToUserPass,
 
