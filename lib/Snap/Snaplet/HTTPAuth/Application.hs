@@ -2,6 +2,7 @@
 
 module Snap.Snaplet.HTTPAuth.Application (
     authInit,
+    defaultAuthDomains,
 
     withAuth,
     withAuth',
@@ -22,8 +23,10 @@ import Control.Lens
 import Control.Monad.State
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C
+import qualified Data.Configurator.Types as CT
 import Data.List hiding (lookup)
 import Data.Monoid
+import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8)
 import Heist
 import Prelude hiding (lookup)
@@ -33,9 +36,9 @@ import Snap.Snaplet.Heist
 import qualified Text.XmlHtml as X
 
 import Snap.Snaplet.HTTPAuth.Authorise
-import Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator
 import Snap.Snaplet.HTTPAuth.Config
 import Snap.Snaplet.HTTPAuth.Types
+import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource.Utilities
 
 --------------------------------------------------------------------------------
 -- | Initialise HTTPAuth snaplet.
@@ -44,6 +47,14 @@ authInit
     -> SnapletInit b AuthConfig -- ^ The initialised HTTPAuth Snaplet
 authInit =
     makeSnaplet "auth" "Handles user authentication" Nothing . return
+
+--------------------------------------------------------------------------------
+-- | Set up default configuration for all the AuthDomains we have
+-- implemented in HTTPAuth Snaplet.
+-- Covers AllowEverything, IfHeader, and UserPass backends.
+defaultAuthDomains :: [(String, [(Text, CT.Value)] -> AuthDataWrapper)]
+defaultAuthDomains = [ ("IfHeader", configToADT cfgToAllowEverythingIfHeader)
+                     , ("UserPass", configToADT cfgToUserPass)]
 
 --------------------------------------------------------------------------------
 -- | Public method: Get current user from Auth headers.

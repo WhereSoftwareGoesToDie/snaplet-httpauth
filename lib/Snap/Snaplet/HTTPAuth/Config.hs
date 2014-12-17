@@ -2,7 +2,10 @@
 
 module Snap.Snaplet.HTTPAuth.Config (
     getAuthManagerCfg,
-    configToADT
+    configToADT,
+
+    cfgToAllowEverythingIfHeader,
+    cfgToUserPass
 ) where
 
 import Data.ByteString (ByteString)
@@ -12,7 +15,9 @@ import Data.Text (Text, isPrefixOf)
 import Prelude hiding (lookup)
 import Snap.Utilities.Configuration
 
+import Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator
 import Snap.Snaplet.HTTPAuth.Types
+import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource.Utilities
 
 ------------------------------------------------------------------------------
 type CfgPair = (Text, CT.Value)

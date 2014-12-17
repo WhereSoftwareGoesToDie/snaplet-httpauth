@@ -46,7 +46,6 @@ library
                      , bytestring
                      , configurator
                      , containers
-                     , hashmap
                      , heist
                      , lens
                      , mtl
@@ -76,7 +75,6 @@ test-suite snaplet-tests-frontend
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -113,7 +111,6 @@ test-suite snaplet-tests-response
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -150,7 +147,6 @@ test-suite simple-app-tests
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -187,7 +183,6 @@ executable uat-snaplet-tests
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , http-client
                      , http-types
@@ -222,8 +217,6 @@ executable uat-simple-snap-tests
                      , configurator
                      , containers
                      , directory
-                     , hashmap
-                     , heist
                      , http-client
                      , http-types
                      , HUnit
@@ -231,7 +224,6 @@ executable uat-simple-snap-tests
                      , mtl
                      , safe
                      , snap
-                     , snap-configuration-utilities
                      , snap-core
                      , snap-loader-static
                      , snap-server

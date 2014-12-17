@@ -9,8 +9,7 @@ module Snap.Snaplet.HTTPAuth (
     parseAuthorizationHeader,
 
     defaultAuthHeaders,
-    defaultAuthDomains,
-
+    
     withAuthDomain
 ) where
 

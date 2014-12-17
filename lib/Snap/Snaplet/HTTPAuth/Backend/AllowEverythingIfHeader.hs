@@ -6,7 +6,7 @@ module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
 ) where
 
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (fromList)
+import Data.Map (fromList)
 import Data.Maybe (fromMaybe)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader

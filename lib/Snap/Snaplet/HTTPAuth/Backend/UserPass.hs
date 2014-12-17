@@ -6,7 +6,7 @@ module Snap.Snaplet.HTTPAuth.Backend.UserPass (
 ) where
 
 import qualified Data.ByteString.Char8 as C
-import Data.HashMap (fromList, lookup)
+import Data.Map (fromList, lookup)
 import Prelude hiding (lookup)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader

@@ -4,7 +4,34 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
 {-$ This Snaplet enables you to use HTTP Auth with configurable backends. -}
 
--- * Configuration
+-- * Usage in simple Snap applications
+
+{-$ To use the HTTPAuth mechanism alone in a simple Snap application, without requiring the additional Snaplet framework, configuration handling and Heist, you can define your authentication configuration and invoke `withAuthDomain` on its own.
+
+    Here's a quick example:
+
+    > import Snap.Snaplet.HTTPAuth
+    > 
+    > myHandler :: Snap ()
+    > myHandler = withAuthDomain [] defaultAuthHeaders (Just myDomain) $
+    >     writeBS "Hello world"
+    >   where
+    >     myDomain = AuthDomain "mydomain" $ AuthDataWrapper (getUser auth, validateUser auth)
+    >     auth = UserPass "foo" "bar"
+
+ -}
+
+-- * Usage as a Snaplet
+
+{-$ To use the HTTPAuth snaplet as a snaplet, within an application, you'll need to make sure to include the right modules as part of your Site and App declarations, as well as anything that calls HTTPAuth methods.
+
+    > import Snap.Snaplet.HTTPAuth
+    > import Snap.Snaplet.HTTPAuth.Application
+    > import Snap.Snaplet.HTTPAuth.Heist
+
+ -}
+
+-- ** Configuration
 
 {-$ In your Snap application's devel.cfg file, or whatever configuration is appropriate for your environment, you'll be assembling AuthDomain sections that describe which type of authentication is appropriate for which domain.
 
