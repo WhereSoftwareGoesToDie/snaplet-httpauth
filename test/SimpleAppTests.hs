@@ -2,9 +2,12 @@
 
 module Main where
 
+import Control.Concurrent
+import Control.Exception
 import Control.Monad
 import Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as BSL
+import Data.Monoid
 import Data.Text hiding (head)
 import qualified Network.HTTP.Types as HT
 import Network.Wreq
@@ -39,11 +42,11 @@ suite = do
             req "/echo/test" "get" Nothing (Just $ packBasic "foo" "bar") >>=
             expectHttpCodeContent HT.ok200 "test"
 
-withServer :: Int -> IO () -> IO ()
+withServer :: Int -> IO a -> IO a
 withServer servePort runner = bracket start stop run
   where
-    start = do
-        void $ simpleHttpServe (setPort servePort mempty) site
-        putStrLn $ "Running server on process " ++ show tid
-    stop = exitSuccess
-    run = runner
+    start  = do
+        pid <- forkIO $ httpServe (setPort servePort mempty) site
+        return pid
+    stop  = killThread
+    run _ = runner

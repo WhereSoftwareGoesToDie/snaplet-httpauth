@@ -132,11 +132,48 @@ test-suite snaplet-tests-response
                      , wreq
                      , xmlhtml
 
+test-suite simple-app-tests
+  hs-source-dirs:      lib test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  main-is:             SimpleAppTests.hs
+  if flag(network-uri)
+    build-depends: network-uri >= 2.6, network >= 2.6
+  else
+    build-depends: network-uri < 2.6, network < 2.6
+  build-depends:       base >=4.7 && <4.8
+                     , base64-bytestring
+                     , bytestring
+                     , configurator
+                     , containers
+                     , directory
+                     , hashmap
+                     , heist
+                     , hspec
+                     , hspec-expectations
+                     , http-client
+                     , http-types
+                     , HUnit
+                     , lens
+                     , mtl
+                     , safe
+                     , snap
+                     , snap-configuration-utilities
+                     , snap-core
+                     , snap-server
+                     , snaplet-httpauth
+                     , split
+                     , text
+                     , transformers
+                     , unordered-containers
+                     , wreq
+                     , xmlhtml
+
 executable uat-snaplet-tests
   hs-source-dirs:      lib test
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
-  main-is:             UatSnapletTests.hs
+  main-is:             UatApp.hs
   if flag(network-uri)
     build-depends: network-uri >= 2.6, network >= 2.6
   else
@@ -171,7 +208,7 @@ executable uat-simple-snap-tests
   hs-source-dirs:      lib test
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
-  main-is:             SimpleApp.hs
+  main-is:             UatSimpleApp.hs
   if flag(network-uri)
     build-depends: network-uri >= 2.6, network >= 2.6
   else
