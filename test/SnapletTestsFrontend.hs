@@ -26,21 +26,7 @@ suite = do
             expectHttpCodeContent HT.ok200 "Hello world"
         it "fetches a tpl with auth" $
             req "/tpl/pub" "get" Nothing Nothing >>=
-            expectHttpCodeWrappedContent HT.ok200 "h1" "Anonymous"
-
-    describe "auth everything" $ do
-        it "fetches a page with auth" $
-            req "/everything" "get" Nothing Nothing >>=
-            expectHttpCodeContent HT.ok200 "Hello everything"
-        it "fetches a tpl without auth" $
-            req "/tpl/everything" "get" Nothing Nothing >>=
-            expectHttpCodeWrappedContent HT.ok200 "h1" "Anonymous"
-        it "fetches a tpl with auth" $
-            req "/tpl/everything" "get" Nothing (Just $ packBasic "hello" "world") >>=
-            expectHttpCodeWrappedContent HT.ok200 "h1" "hello"
-        it "fetches a tpl with auth 2" $
-            req "/tpl/everything" "get" Nothing (Just $ packBasic "foo" "bar") >>=
-            expectHttpCodeWrappedContent HT.ok200 "h1" "foo"
+            expectHttpCodeWrappedContent HT.ok200 "h1" "Nobody"
 
     describe "auth ifheader" $ do
         it "fetches a page with auth" $

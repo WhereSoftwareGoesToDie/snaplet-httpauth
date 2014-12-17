@@ -4,3 +4,4 @@ chromedriver
 selenium-server-standalone.jar
 cabal.sandbox.config
 .cabal-sandbox/*
+tags

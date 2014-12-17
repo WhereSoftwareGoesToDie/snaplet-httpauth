@@ -31,7 +31,7 @@ import Data.ByteString (ByteString)
 import qualified Data.Configurator.Types as CT
 import Data.Text (Text)
 
-import Snap.Snaplet.HTTPAuth.Backend (cfgToAllowEverything, cfgToAllowEverythingIfHeader, cfgToUserPass)
+import Snap.Snaplet.HTTPAuth.Backend (cfgToAllowEverythingIfHeader, cfgToUserPass)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser
@@ -74,6 +74,5 @@ defaultAuthHeaders = [parserToAHW parseBasicAuthHeader]
 -- implemented in HTTPAuth Snaplet.
 -- Covers AllowEverything, IfHeader, and UserPass backends.
 defaultAuthDomains :: [(String, [(Text, CT.Value)] -> AuthDataWrapper)]
-defaultAuthDomains = [ ("AllowEverything", configToADT cfgToAllowEverything)
-                     , ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
+defaultAuthDomains = [ ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
                      , ("UserPass",        configToADT cfgToUserPass)]

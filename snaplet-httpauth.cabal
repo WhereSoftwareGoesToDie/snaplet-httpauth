@@ -28,7 +28,6 @@ library
                      , Snap.Snaplet.HTTPAuth.Tutorial
   other-modules:       Snap.Snaplet.HTTPAuth.App
                      , Snap.Snaplet.HTTPAuth.Backend
-                     , Snap.Snaplet.HTTPAuth.Backend.AllowEverything
                      , Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader
                      , Snap.Snaplet.HTTPAuth.Backend.UserPass
                      , Snap.Snaplet.HTTPAuth.Config

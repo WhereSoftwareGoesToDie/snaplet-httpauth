@@ -14,11 +14,17 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     > {
     >     display
     >     {
-    >         AuthenticationType = "AllowEverything"
+    >         AuthenticationType = "IfHeader"
     >     }
-    >     generalPublic
+    >     requiresHeader
     >     {
-    >         AuthenticationType = "AllowEverything"
+    >         AuthenticationType = "IfHeader"
+    >     }
+    >     requiresSpecificUser
+    >     {
+    >         AuthenticationType = "UserPass"
+    >         Username = "foo"
+    >         Password = "bar"
     >     }
     >     securedArea
     >     {
@@ -29,7 +35,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >     }
     > }
 
-    This will define three authentication domains, which will all prompt for credentials anew.
+    This will define four authentication domains, which will all prompt for credentials.
 
     We recommend that you implement at least one domain that's used only for displaying things at the very least, so that your Heist splices will work.
 
@@ -82,8 +88,11 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >
     >     cfg <- getSnapletUserConfig
     >
-    >     let authHeaders = [parserToAHW parseBasicAuthHeader]
-    >     let authTypes = [("AllowEverything", configToADT cfgToAllowEverything)]
+    >     let authHeaders = [ parserToAHW parseBasicAuthHeader
+    >                       , parserToAHW parseCustomAuthHeader ]
+    >     let authDomains = [ ("IfHeader", configToADT cfgToAllowEverythingIfHeader)
+    >                       , ("UserPass", configToADT cfgToUserPass)
+    >                       , ("HypotheticalAPI", configToADT cfgToHypotheticalAPI) ]
     >
     >     ac <- liftIO $ getAuthManagerCfg authHeaders authTypes cfg
     >     a <- nestSnaplet "httpauth" httpauth $ authInit ac
@@ -165,8 +174,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     > -- put the import above at top of module
     > 
     > instance IAuthDataSource UserPass where
-    >     getUser _ Nothing  = return Nothing
-    >     getUser up (Just (AuthHeaderWrapper (_,gf,_))) = return $
+    >     getUser up (AuthHeaderWrapper (_,gf,_)) = return $
     >         if gf "Username" == (Just . userpassUsername $ up)
     >             then Just $
     >                 AuthUser (C.pack . userpassUsername $ up)
@@ -180,9 +188,9 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >         (username == (C.pack . userpassUsername $ up)) &&
     >         (lookup "Password" f == (Just . C.pack . userpassPassword $ up))
 
-    `getUser` takes a UserPass object and a Maybe AuthHeaderWrapper. If we receive Nothing for the latter, we didn't successfully parse an Authorization header, and therefore we have no user to return.
+    In this case, `getUser` takes a UserPass and an AuthHeaderWrapper.
 
-    If we got a Just AuthHeaderWrapper, we use pattern matching to get access to its component methods. We only need the 2nd item, to get at the Authorization header's fields.
+    For the AuthHeaderWrapper, we use pattern matching to get access to its component methods. We only need the 2nd item, to get at the Authorization header's fields.
 
     We check to see if the provided username matches the one in the UserPass object. If it does, we return an AuthUser object, with the provided username, but we set its password to the one from the Authorization header. This makes sure that `validateUser` will work correctly.
 

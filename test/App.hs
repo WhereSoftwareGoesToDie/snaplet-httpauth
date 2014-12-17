@@ -12,16 +12,10 @@ import Control.Lens
 import Control.Monad.IO.Class
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
-import qualified Data.Configurator as C
-import qualified Data.Configurator.Types as CT
-import Data.Monoid
-import qualified Data.Text as T
-import Heist
 import Snap.Core
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 import Snap.Snaplet.HTTPAuth
-import Snap.Util.FileServe
 
 ------------------------------------------------------------------------------
 -- App
@@ -39,11 +33,9 @@ type AppHandler = Handler App App
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("tpl/pub",        publicTpl)
-         , ("tpl/everything", everythingTpl)
          , ("tpl/ifheader",   ifheaderTpl)
          , ("tpl/userpass",   userpassTpl)
 
-         , ("everything",     everythingPage)
          , ("ifheader",       ifheaderPage)
          , ("userpass",       userpassPage)
          , ("pub",            publicPage) ]
@@ -90,8 +82,7 @@ app = makeSnaplet "app" "Test app" Nothing $ do
     cfg <- getSnapletUserConfig
 
     let authHeaders = [parserToAHW parseBasicAuthHeader]
-    let authTypes = [ ("AllowEverything", configToADT cfgToAllowEverything)
-                    , ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
+    let authTypes = [ ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
                     , ("UserPass",        configToADT cfgToUserPass)]
 
     ac <- liftIO $ getAuthManagerCfg authHeaders authTypes cfg

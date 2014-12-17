@@ -17,7 +17,6 @@ module Snap.Snaplet.HTTPAuth (
     parseAuthorizationHeader,
 
     configToADT,
-    cfgToAllowEverything,
     cfgToAllowEverythingIfHeader,
     cfgToUserPass,
 
@@ -25,8 +24,8 @@ module Snap.Snaplet.HTTPAuth (
     defaultAuthDomains
 ) where
 
+import Control.Applicative
 import Control.Lens
-import Control.Monad
 import Control.Monad.State
 import Data.Monoid
 import Data.Text.Encoding (decodeUtf8)
@@ -43,23 +42,25 @@ import Snap.Snaplet.HTTPAuth.Types
 --------------------------------------------------------------------------------
 -- | Initialise HTTPAuth snaplet.
 authInit
-    :: AuthConfig -- ^ HTTPAuth AuthConfig object, or a method to generate it
-    -> SnapletInit b AuthConfig -- ^ The initialised HTTPAuth Snaplet.
-authInit cfg = makeSnaplet "auth" "Handles user authentication" Nothing $ return cfg
+    :: AuthConfig               -- ^ Configuration
+    -> SnapletInit b AuthConfig -- ^ The initialised HTTPAuth Snaplet
+authInit =
+    makeSnaplet "auth" "Handles user authentication" Nothing . return
 
 --------------------------------------------------------------------------------
 -- | Generate splices for the HTTPAuth snaplet.
 -- This allows the use of the `currentUser` tag to display the name of the current user.
 addHTTPAuthSplices
     :: HasHeist b
-    => Snaplet (Heist b) -- ^ Heist Snaplet
-    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig object
-    -> String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
+    => Snaplet (Heist b)        -- ^ Heist Snaplet
+    -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
+    -> String                   -- ^ HTTPAuth domain name matching one of the
+                                --   domains defined in the AuthDomains config
     -> Initializer b v ()
-addHTTPAuthSplices h auth domainName = addConfig h sc
+addHTTPAuthSplices h auth domain_name = addConfig h sc
   where
-    sc = mempty & scInterpretedSplices .~ intSpli
-    intSpli = "currentUser" ## authCurrentUser
-    authCurrentUser = lift $
-        liftM (replicate 1 . X.TextNode . maybe "Nobody" (decodeUtf8 . authUserIdentity))
-              (currentUserInDomain domainName auth)
+    sc = mempty & scInterpretedSplices .~ ("currentUser" ## authCurrentUser)
+    authCurrentUser = lift $ do
+        u <- maybe "Nobody" (decodeUtf8 . authUserIdentity)
+                <$> currentUserInDomain domain_name auth
+        return [X.TextNode u]

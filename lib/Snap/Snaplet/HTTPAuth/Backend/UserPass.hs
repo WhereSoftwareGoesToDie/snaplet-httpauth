@@ -29,8 +29,7 @@ data UserPass = UserPass {
 }
 
 instance IAuthDataSource UserPass where
-    getUser _ Nothing  = return Nothing
-    getUser up (Just (AuthHeaderWrapper (_,gf,_))) = return $
+    getUser up (AuthHeaderWrapper (_,gf,_)) = return $
         if gf "Username" == (Just . userpassUsername $ up)
             then Just $
                 AuthUser (C.pack . userpassUsername $ up)

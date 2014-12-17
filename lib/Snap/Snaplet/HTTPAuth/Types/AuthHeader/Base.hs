@@ -10,7 +10,6 @@ module Snap.Snaplet.HTTPAuth.Types.AuthHeader.Base where
 import Control.Applicative
 import Data.ByteString (ByteString)
 import Data.Maybe
-import Safe
 
 -------------------------------------------------------------------------------
 -- | Basic class definition for all Authorization header parsers.
@@ -35,7 +34,7 @@ parserToAHW
     => (ByteString -> Maybe r) -- ^ Function that converts an Authorization header into an object of class AuthHeader.
     -> ByteString -- ^ The Authorization header to parse.
     -> Maybe AuthHeaderWrapper -- ^ A potential internal representation of the header, that can be passed to an authentication backend.
-parserToAHW parser headerStr = translateOK <$> parser headerStr
+parserToAHW parser hdr = translateOK <$> parser hdr
   where
     translateOK x = AuthHeaderWrapper (authHeaderType x, authHeaderField x, toHeader x)
 
@@ -43,7 +42,6 @@ parserToAHW parser headerStr = translateOK <$> parser headerStr
 -- header definitions.
 parseAuthorizationHeader
     :: [ByteString -> Maybe AuthHeaderWrapper] -- ^ A list of recognised Authorization header parsers.
-    -> Maybe ByteString -- ^ The Authorization header to parse.
+    -> ByteString -- ^ The Authorization header to parse.
     -> Maybe AuthHeaderWrapper -- ^ A potential internal representation of the header, that can be passed to an authentication backend.
-parseAuthorizationHeader _ Nothing = Nothing
-parseAuthorizationHeader parsers (Just headerStr) = headMay . catMaybes $ [ fn headerStr | fn <- parsers ]
+parseAuthorizationHeader parsers hdr = listToMaybe . mapMaybe ($ hdr) $ parsers

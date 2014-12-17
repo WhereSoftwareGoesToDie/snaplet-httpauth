@@ -24,8 +24,8 @@ import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 data AllowEverythingIfHeader = AllowEverythingIfHeader
 
 instance IAuthDataSource AllowEverythingIfHeader where
-    getUser _ Nothing                             = return Nothing
-    getUser _ (Just (AuthHeaderWrapper (_,gf,_))) = return . Just $ AuthUser (C.pack . fromMaybe "Unknown" . gf $ "Username") (fromList [])
+    getUser _ (AuthHeaderWrapper (_,gf,_)) =
+        return . Just $ AuthUser (C.pack . fromMaybe "Unknown" . gf $ "Username") (fromList [])
     validateUser _ _ _                            = True
 
 -------------------------------------------------------------------------------

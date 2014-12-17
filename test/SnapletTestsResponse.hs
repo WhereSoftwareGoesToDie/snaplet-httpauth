@@ -28,17 +28,6 @@ suite = do
             req "/pub" "get" Nothing Nothing >>=
             expectHttpCode HT.ok200
 
-    describe "everything auth" $ do
-        it "prompts for auth when none is provided" $
-            req "/everything" "get" Nothing Nothing >>=
-            expectHttpCode HT.ok200
-        it "flunks out when bad auth is provided" $
-            req "/everything" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
-            expectHttpCode HT.ok200
-        it "fetches a page when auth is provided" $
-            req "/everything" "get" Nothing (Just $ packBasic "foo" "bar") >>=
-            expectHttpCode HT.ok200
-
     describe "ifheader auth" $ do
         it "prompts for auth when none is provided" $
             req "/ifheader" "get" Nothing Nothing >>=
