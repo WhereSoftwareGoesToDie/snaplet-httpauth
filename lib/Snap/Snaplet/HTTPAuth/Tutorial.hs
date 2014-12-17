@@ -14,11 +14,17 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     > {
     >     display
     >     {
-    >         AuthenticationType = "AllowEverything"
+    >         AuthenticationType = "IfHeader"
     >     }
-    >     generalPublic
+    >     requiresHeader
     >     {
-    >         AuthenticationType = "AllowEverything"
+    >         AuthenticationType = "IfHeader"
+    >     }
+    >     requiresSpecificUser
+    >     {
+    >         AuthenticationType = "UserPass"
+    >         Username = "foo"
+    >         Password = "bar"
     >     }
     >     securedArea
     >     {
@@ -29,7 +35,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >     }
     > }
 
-    This will define three authentication domains, which will all prompt for credentials anew.
+    This will define four authentication domains, which will all prompt for credentials.
 
     We recommend that you implement at least one domain that's used only for displaying things at the very least, so that your Heist splices will work.
 
@@ -82,8 +88,11 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >
     >     cfg <- getSnapletUserConfig
     >
-    >     let authHeaders = [parserToAHW parseBasicAuthHeader]
-    >     let authTypes = [("AllowEverything", configToADT cfgToAllowEverything)]
+    >     let authHeaders = [ parserToAHW parseBasicAuthHeader
+    >                       , parserToAHW parseCustomAuthHeader ]
+    >     let authDomains = [ ("IfHeader", configToADT cfgToAllowEverythingIfHeader)
+    >                       , ("UserPass", configToADT cfgToUserPass)
+    >                       , ("HypotheticalAPI", configToADT cfgToHypotheticalAPI) ]
     >
     >     ac <- liftIO $ getAuthManagerCfg authHeaders authTypes cfg
     >     a <- nestSnaplet "httpauth" httpauth $ authInit ac

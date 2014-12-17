@@ -49,7 +49,7 @@ AuthDomains
 }
 ```
 
-This will define three authentication domains, which will all prompt for credentials anew.
+This will define four authentication domains, which will all prompt for credentials.
 
 We recommend that you implement at least one domain that's used only for displaying things at the very least, so that your Heist splices will work.
 
