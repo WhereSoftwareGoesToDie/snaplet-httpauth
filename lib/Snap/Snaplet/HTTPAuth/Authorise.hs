@@ -82,7 +82,8 @@ getAuthorizationHeader hdr_parsers =
     return . join . fmap (parseAuthorizationHeader hdr_parsers) . getHeader "Authorization"
 
 --------------------------------------------------------------------------------
--- | Internal method: Throw a 401 error response.
+-- | Throw a 401 error response, indicating that you must be authenticated to
+-- view this resource, and must send your credentials.
 throwChallenge
     :: (MonadSnap m)
     => m ()
@@ -90,7 +91,8 @@ throwChallenge = do
     modifyResponse $ setResponseStatus 401 "Unauthorized"
     writeBS "Tell me about yourself"
 
--- | Internal method: Throw a 403 error response.
+-- | Throw a 403 error response, indicating that your credentials were rejected
+-- and that you are not authorised to view this resource.
 throwDenied
     :: (MonadSnap m)
     => m ()
