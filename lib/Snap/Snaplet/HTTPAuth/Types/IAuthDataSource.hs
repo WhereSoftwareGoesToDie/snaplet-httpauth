@@ -32,7 +32,9 @@ type CfgPair = (Text, CT.Value)
 -- and (validateUser) a function that takes a list of roles specific to
 -- the Handler, and an AuthUser. It returns True if the user is allowed
 -- to run this handler, and False if not.
-data AuthDataWrapper = AuthDataWrapper (AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
+data AuthDataWrapper = AuthDataWrapper {
+    authDataUnwrap :: (AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
+}
 
 -- | Builds an AuthDataWrapper out of configuration information.
 -- Most often used as a partial method when setting up your site.

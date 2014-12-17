@@ -153,7 +153,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
     >     import qualified Data.Configurator.Types as CT
     >     -- put the import above at top of module
-    > 
+    >
     >     cfgToUserPass
     >         :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
     >         -> UserPass -- ^ A UserPass backend for a particular HTTPAuth domain.
@@ -172,7 +172,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
     > import qualified Data.ByteString.Char8 as C
     > -- put the import above at top of module
-    > 
+    >
     > instance IAuthDataSource UserPass where
     >     getUser up (AuthHeaderWrapper (_,gf,_)) = return $
     >         if gf "Username" == (Just . userpassUsername $ up)
@@ -223,7 +223,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >     import qualified Data.ByteString.Char8 as C
     >     import Data.Maybe (fromMaybe)
     >     -- put the import above at top of module
-    > 
+    >
     >     instance AuthHeader BasicAuthHeader where
     >         authHeaderType _ = "BasicAuth"
     >         authHeaderField (BasicAuthHeader m) f = lookup f m

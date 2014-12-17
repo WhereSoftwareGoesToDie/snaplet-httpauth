@@ -31,7 +31,8 @@ import Data.ByteString (ByteString)
 import qualified Data.Configurator.Types as CT
 import Data.Text (Text)
 
-import Snap.Snaplet.HTTPAuth.Backend (cfgToAllowEverythingIfHeader, cfgToUserPass)
+import Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator (cfgToAllowEverythingIfHeader,
+                                                             cfgToUserPass)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser

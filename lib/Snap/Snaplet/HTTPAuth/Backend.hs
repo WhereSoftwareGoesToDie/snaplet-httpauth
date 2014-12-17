@@ -1,11 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Snap.Snaplet.HTTPAuth.Backend (
     AllowEverythingIfHeader (..),
-    UserPass (..),
-
-    cfgToAllowEverythingIfHeader,
-    cfgToUserPass
+    UserPass (..)
 ) where
 
 import Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader

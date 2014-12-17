@@ -25,11 +25,14 @@ flag network-uri
 
 library
   exposed-modules:     Snap.Snaplet.HTTPAuth
+                     , Snap.Snaplet.HTTPAuth.Application
+                     , Snap.Snaplet.HTTPAuth.Heist
                      , Snap.Snaplet.HTTPAuth.Tutorial
-  other-modules:       Snap.Snaplet.HTTPAuth.App
+  other-modules:       Snap.Snaplet.HTTPAuth.Authorise
                      , Snap.Snaplet.HTTPAuth.Backend
                      , Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader
                      , Snap.Snaplet.HTTPAuth.Backend.UserPass
+                     , Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator
                      , Snap.Snaplet.HTTPAuth.Config
                      , Snap.Snaplet.HTTPAuth.Types
                      , Snap.Snaplet.HTTPAuth.Types.AuthHeader

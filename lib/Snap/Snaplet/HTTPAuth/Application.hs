@@ -1,12 +1,20 @@
-{-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE OverloadedStrings        #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-module Snap.Snaplet.HTTPAuth.App (
+module Snap.Snaplet.HTTPAuth.Application (
+    authInit,
+
     withAuth,
     withAuth',
     withAuthDomain,
     currentUser,
-    currentUserInDomain
+    currentUserInDomain,
+
+    cfgToAllowEverythingIfHeader,
+    cfgToUserPass,
+
+    getAuthManagerCfg,
+    configToADT,
+    AuthHeaderWrapper (..)
 ) where
 
 import Control.Applicative
@@ -15,11 +23,27 @@ import Control.Monad.State
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C
 import Data.List hiding (lookup)
+import Data.Monoid
+import Data.Text.Encoding (decodeUtf8)
+import Heist
 import Prelude hiding (lookup)
 import Snap.Core
 import Snap.Snaplet
+import Snap.Snaplet.Heist
+import qualified Text.XmlHtml as X
 
+import Snap.Snaplet.HTTPAuth.Authorise
+import Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator
+import Snap.Snaplet.HTTPAuth.Config
 import Snap.Snaplet.HTTPAuth.Types
+
+--------------------------------------------------------------------------------
+-- | Initialise HTTPAuth snaplet.
+authInit
+    :: AuthConfig               -- ^ Configuration
+    -> SnapletInit b AuthConfig -- ^ The initialised HTTPAuth Snaplet
+authInit =
+    makeSnaplet "auth" "Handles user authentication" Nothing . return
 
 --------------------------------------------------------------------------------
 -- | Public method: Get current user from Auth headers.
@@ -40,13 +64,7 @@ currentUserInDomain domain_name auth = do
     h <- withTop auth $ view authHeaders
     case x of
         Nothing -> return Nothing
-        Just d  -> currentUser' h d
-  where
-    currentUser' fs (AuthDomain _ (AuthDataWrapper (gu, _))) = do
-        maybe_h <- getHeader "Authorization" <$> getRequest
-        case maybe_h >>= parseAuthorizationHeader fs of
-            Nothing -> return Nothing
-            Just h  -> liftIO $ gu h
+        Just d  -> userFromDomain h d
 
 --------------------------------------------------------------------------------
 -- | Perform authentication passthrough.
@@ -64,7 +82,7 @@ withAuth
                       --    header was found but not authorised) HTTP status
                       --    code will be returned.
 withAuth dn auth ifSuccessful =
-    withTop auth (authDomain dn) >>= withAuthDomain' dn [] auth ifSuccessful
+    withTop auth (authDomain dn) >>= withAuthDomain' [] auth ifSuccessful
 
 -- | Perform authentication passthrough.
 --
@@ -82,46 +100,22 @@ withAuth'
     -> Handler b b ()
 withAuth' dn auth addRoles ifSuccessful =
     withTop auth (authDomain dn)
-    >>= withAuthDomain' dn addRoles auth ifSuccessful
+    >>= withAuthDomain' addRoles auth ifSuccessful
 
 -- | Internal method: Uses the application lens to extract the Auth header
 -- parsers, and hands over to withAuthDomain.
 withAuthDomain'
-    :: String -- ^ HTTPAuth domain name matching one of the domains defined in
-              --   the AuthDomains config
-    -> [String] -- ^ List of additional roles to add to this domain to
+    :: [String] -- ^ List of additional roles to add to this domain to
                 --   authenticate with
     -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
     -> Handler b b () -- ^ Handler to run if authentication was successful
     -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
                         --   supplied domain name
     -> Handler b b ()
-withAuthDomain' _ _ _ _ Nothing = throwDenied
-withAuthDomain' dn add_roles auth success_k (Just ad) = do
+withAuthDomain' _ _ _ Nothing = throwDenied
+withAuthDomain' add_roles auth success_k (Just ad) = do
     fs <- withTop auth $ view authHeaders
-    withAuthDomain dn add_roles fs (Just ad) success_k
-
--- | Perform authentication passthrough with a known AuthDomain and list of
--- additional roles.
-withAuthDomain
-    :: (MonadSnap m)
-    => String -- ^ HTTPAuth domain name matching one of the domains defined in
-              --   the AuthDomains config
-    -> [String] -- ^ List of additional roles to add to this domain to
-                --   authenticate with
-    -> [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of Auth header parsers.
-    -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
-                        --   supplied domain name
-    -> m () -- ^ Handler to run if authentication was successful
-    -> m ()
-withAuthDomain _ _ _ Nothing _ = throwDenied
-withAuthDomain dn add_roles fs (Just ad) success_k = do
-    maybe_hdr <- getHeader "Authorization" <$> getRequest
-    case maybe_hdr >>= parseAuthorizationHeader fs of
-        Nothing -> (throwChallenge dn)
-        Just h  -> do
-            success <- liftIO $ testAuthHeader ad add_roles h
-            if success then success_k else throwDenied
+    withAuthDomain add_roles fs (Just ad) success_k
 
 --------------------------------------------------------------------------------
 -- | Internal method: Get AuthDomain by name
@@ -133,35 +127,3 @@ authDomain domainName = do
     return $ find domainMatch (_authDomains x)
   where
     domainMatch d = domainName == authDomainName d
-
---------------------------------------------------------------------------------
--- | Internal method: Throw a 401 error response.
-throwChallenge
-    :: (MonadSnap m)
-    => String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
-    -> m ()
-throwChallenge domainName = do
-    modifyResponse $ setResponseStatus 401 "Unauthorized" . setHeader "WWW-Authenticate" (C.pack realm)
-    writeBS "Tell me about yourself"
-  where
-    realm = "Basic realm=" ++ domainName
-
--- | Internal method: Throw a 403 error response.
-throwDenied
-    :: (MonadSnap m)
-    => m ()
-throwDenied = do
-    modifyResponse $ setResponseStatus 403 "Access Denied"
-    writeBS "Access Denied"
-
---------------------------------------------------------------------------------
--- | Internal method: Test authentication header against AuthDomain, using the
--- current AuthDomain's implementation of of validateUser.
-testAuthHeader
-    :: AuthDomain -- ^ An AuthDomain object determined by the supplied domain name
-    -> [String] -- ^ List of additional roles to add to this domain to authenticate with
-    -> AuthHeaderWrapper -- ^ An AuthHeaderWrapper obtained by successfully parsing the Authorization header
-    -> IO Bool
-testAuthHeader (AuthDomain _ (AuthDataWrapper (gu, vu))) addRoles h = do
-    x <- gu h
-    return $ maybe False (vu addRoles) x

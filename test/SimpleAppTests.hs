@@ -26,7 +26,7 @@ main = void $ withServer appPort $ hspec suite
 
 suite :: Spec
 suite = do
-    describe "public pages" $ do
+    describe "public pages" $
         it "fetches a page without auth" $
             req "/foo" "get" Nothing Nothing >>=
             expectHttpCodeContent HT.ok200 "bar"
@@ -45,8 +45,6 @@ suite = do
 withServer :: Int -> IO a -> IO a
 withServer servePort runner = bracket start stop run
   where
-    start  = do
-        pid <- forkIO $ httpServe (setPort servePort mempty) site
-        return pid
+    start = forkIO $ httpServe (setPort servePort mempty) site
     stop  = killThread
     run _ = runner

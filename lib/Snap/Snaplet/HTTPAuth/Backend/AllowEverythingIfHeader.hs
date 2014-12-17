@@ -2,15 +2,12 @@
 
 module Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader (
     AllowEverythingIfHeader (..),
-    IAuthDataSource,
-    cfgToAllowEverythingIfHeader
+    IAuthDataSource
 ) where
 
 import qualified Data.ByteString.Char8 as C
-import qualified Data.Configurator.Types as CT
 import Data.HashMap (fromList)
 import Data.Maybe (fromMaybe)
-import Data.Text (Text)
 
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser
@@ -27,9 +24,3 @@ instance IAuthDataSource AllowEverythingIfHeader where
     getUser _ (AuthHeaderWrapper (_,gf,_)) =
         return . Just $ AuthUser (C.pack . fromMaybe "Unknown" . gf $ "Username") (fromList [])
     validateUser _ _ _                            = True
-
--------------------------------------------------------------------------------
-cfgToAllowEverythingIfHeader
-    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
-    -> AllowEverythingIfHeader -- ^ An AllowEverythingIfHeader backend for a particular HTTPAuth domain.
-cfgToAllowEverythingIfHeader _ = AllowEverythingIfHeader

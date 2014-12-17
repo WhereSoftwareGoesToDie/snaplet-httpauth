@@ -1,9 +1,6 @@
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
 
 module Simple.App where
@@ -30,7 +27,7 @@ site =
     dir "static" (serveDirectory ".")
 
 echoHandler :: Snap ()
-echoHandler = withAuthDomain "testdomain" [] defaultAuthHeaders (Just simpleAuthDomain) $ do
+echoHandler = withAuthDomain [] defaultAuthHeaders (Just simpleAuthDomain) $ do
     param <- getParam "echoparam"
     maybe (writeBS "must specify echo/param in URL")
           writeBS param
@@ -38,4 +35,4 @@ echoHandler = withAuthDomain "testdomain" [] defaultAuthHeaders (Just simpleAuth
 simpleAuthDomain :: AuthDomain
 simpleAuthDomain = AuthDomain "testdomain" (AuthDataWrapper (getUser d, validateUser d))
   where
-    d = (UserPass "foo" "bar")
+    d = UserPass "foo" "bar"
