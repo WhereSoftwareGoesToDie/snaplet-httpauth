@@ -166,3 +166,38 @@ executable uat-snaplet-tests
                      , unordered-containers
                      , wreq
                      , xmlhtml
+
+executable uat-simple-snap-tests
+  hs-source-dirs:      lib test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  main-is:             SimpleApp.hs
+  if flag(network-uri)
+    build-depends: network-uri >= 2.6, network >= 2.6
+  else
+    build-depends: network-uri < 2.6, network < 2.6
+  build-depends:       base >=4.7 && <4.8
+                     , base64-bytestring
+                     , bytestring
+                     , configurator
+                     , containers
+                     , directory
+                     , hashmap
+                     , heist
+                     , http-client
+                     , http-types
+                     , HUnit
+                     , lens
+                     , mtl
+                     , safe
+                     , snap
+                     , snap-configuration-utilities
+                     , snap-core
+                     , snap-loader-static
+                     , snap-server
+                     , snaplet-httpauth
+                     , text
+                     , transformers
+                     , unordered-containers
+                     , wreq
+                     , xmlhtml
