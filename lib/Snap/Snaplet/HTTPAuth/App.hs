@@ -118,7 +118,7 @@ withAuthDomain _ _ _ Nothing _ = throwDenied
 withAuthDomain dn add_roles fs (Just ad) success_k = do
     maybe_hdr <- getHeader "Authorization" <$> getRequest
     case maybe_hdr >>= parseAuthorizationHeader fs of
-        Nothing -> (throwChallenge dn)
+        Nothing -> throwChallenge dn
         Just h  -> do
             success <- liftIO $ testAuthHeader ad add_roles h
             if success then success_k else throwDenied
@@ -135,7 +135,8 @@ authDomain domainName = do
     domainMatch d = domainName == authDomainName d
 
 --------------------------------------------------------------------------------
--- | Internal method: Throw a 401 error response.
+-- | Throw a 401 error response, indicating that you must be authenticated to
+-- view this resource, and must send your credentials.
 throwChallenge
     :: (MonadSnap m)
     => String -- ^ HTTPAuth domain name matching one of the domains defined in the AuthDomains config
@@ -146,7 +147,8 @@ throwChallenge domainName = do
   where
     realm = "Basic realm=" ++ domainName
 
--- | Internal method: Throw a 403 error response.
+-- | Throw a 403 error response, indicating that your credentials were rejected
+-- and that you are not authorised to view this resource.
 throwDenied
     :: (MonadSnap m)
     => m ()
