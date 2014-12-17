@@ -6,7 +6,7 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
 
-module App where
+module App.App where
 
 import Control.Lens
 import Control.Monad.IO.Class

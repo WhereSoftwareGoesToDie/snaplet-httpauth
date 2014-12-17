@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module TestHelpers where
+module Test.Helpers where
 
 import Control.Exception
 import Control.Lens
@@ -18,7 +18,7 @@ import Test.Hspec
 import Test.Hspec.Expectations
 import Test.HUnit
 
-import TestConfig
+import Test.Config
 
 -- | Just pass something
 pass :: Expectation

@@ -12,8 +12,8 @@ import Snap.Snaplet
 import Snap.Snaplet.Config
 import System.IO
 
-import App
-import TestConfig
+import App.App
+import Test.Config
 
 main :: IO ()
 main = do

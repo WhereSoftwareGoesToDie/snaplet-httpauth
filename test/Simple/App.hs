@@ -6,7 +6,7 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
 
-module Main where
+module Simple.App where
 
 import Control.Applicative
 import Control.Lens
@@ -17,10 +17,9 @@ import Snap.Core
 import Snap.Http.Server
 import Snap.Snaplet
 import Snap.Snaplet.HTTPAuth
+import Snap.Snaplet.HTTPAuth.Backend.UserPass
+import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
 import Snap.Util.FileServe
-
-main :: IO ()
-main = quickHttpServe site
 
 site :: Snap ()
 site =
@@ -31,7 +30,12 @@ site =
     dir "static" (serveDirectory ".")
 
 echoHandler :: Snap ()
-echoHandler = do
+echoHandler = withAuthDomain "testdomain" [] defaultAuthHeaders (Just simpleAuthDomain) $ do
     param <- getParam "echoparam"
     maybe (writeBS "must specify echo/param in URL")
           writeBS param
+
+simpleAuthDomain :: AuthDomain
+simpleAuthDomain = AuthDomain "testdomain" (AuthDataWrapper (getUser d, validateUser d))
+  where
+    d = (UserPass "foo" "bar")

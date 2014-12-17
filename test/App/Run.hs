@@ -9,7 +9,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module ServerRun (
+module App.Run (
     withServer
 ) where
 
@@ -31,8 +31,8 @@ import Snap.Http.Server.Config
 import Snap.Snaplet
 import System.IO
 
-import App
-import SafeCWD
+import App.App
+import Test.SafeCWD
 
 withServer :: Int -> String -> IO a -> IO a
 withServer servePort cfgPath runner = bracket start stop run

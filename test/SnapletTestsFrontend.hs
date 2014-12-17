@@ -11,9 +11,9 @@ import Network.Wreq
 import Test.Hspec
 import Test.HUnit
 
-import ServerRun
-import TestConfig
-import TestHelpers
+import App.Run
+import Test.Config
+import Test.Helpers
 
 main :: IO ()
 main = void $ withServer appPort "test/data/TestingConfig" $ hspec suite

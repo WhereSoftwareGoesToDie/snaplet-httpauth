@@ -99,7 +99,7 @@ withAuthDomain'
 withAuthDomain' _ _ _ _ Nothing = throwDenied
 withAuthDomain' dn add_roles auth success_k (Just ad) = do
     fs <- withTop auth $ view authHeaders
-    withAuthDomain dn add_roles fs success_k (Just ad)
+    withAuthDomain dn add_roles fs (Just ad) success_k
 
 -- | Perform authentication passthrough with a known AuthDomain and list of
 -- additional roles.
@@ -110,12 +110,12 @@ withAuthDomain
     -> [String] -- ^ List of additional roles to add to this domain to
                 --   authenticate with
     -> [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of Auth header parsers.
-    -> m () -- ^ Handler to run if authentication was successful
     -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
                         --   supplied domain name
+    -> m () -- ^ Handler to run if authentication was successful
     -> m ()
-withAuthDomain _ _ _ _ Nothing = throwDenied
-withAuthDomain dn add_roles fs success_k (Just ad) = do
+withAuthDomain _ _ _ Nothing _ = throwDenied
+withAuthDomain dn add_roles fs (Just ad) success_k = do
     maybe_hdr <- getHeader "Authorization" <$> getRequest
     case maybe_hdr >>= parseAuthorizationHeader fs of
         Nothing -> (throwChallenge dn)

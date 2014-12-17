@@ -1,6 +1,6 @@
 -- Nicked from Snap framework
 
-module SafeCWD
+module Test.SafeCWD
   ( inDir
   , removeDirectoryRecursiveSafe
   ) where
