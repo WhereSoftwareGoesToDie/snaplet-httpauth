@@ -1,4 +1,4 @@
-module TestConfig where
+module Test.Config where
 
 appPort :: Int
 appPort = 9753

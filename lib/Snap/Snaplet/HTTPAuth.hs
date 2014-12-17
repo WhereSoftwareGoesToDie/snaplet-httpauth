@@ -9,6 +9,8 @@ module Snap.Snaplet.HTTPAuth (
 
     authInit,
     withAuth,
+    withAuth',
+    withAuthDomain,
     addHTTPAuthSplices,
 
     AuthHeaderWrapper (..),
