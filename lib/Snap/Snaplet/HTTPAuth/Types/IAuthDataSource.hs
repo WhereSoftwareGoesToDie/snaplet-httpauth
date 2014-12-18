@@ -8,7 +8,7 @@
 module Snap.Snaplet.HTTPAuth.Types.IAuthDataSource (
     IAuthDataSource (..),
     AuthDataWrapper (..),
-    configToADT
+    wrapDataSource
 ) where
 
 import qualified Data.Configurator.Types as CT
@@ -23,8 +23,6 @@ class IAuthDataSource r where
     validateUser :: r -> [String] -> AuthUser -> Bool
 
 ------------------------------------------------------------------------
-type CfgPair = (Text, CT.Value)
-
 -- | A wrapper around an object that implements the IAuthDataSource class.
 -- Contains a tuple of two functions:
 -- (getUser) a function that takes a Maybe AuthHeaderWrapper and returns
@@ -32,15 +30,15 @@ type CfgPair = (Text, CT.Value)
 -- and (validateUser) a function that takes a list of roles specific to
 -- the Handler, and an AuthUser. It returns True if the user is allowed
 -- to run this handler, and False if not.
-data AuthDataWrapper = AuthDataWrapper (AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
+data AuthDataWrapper = AuthDataWrapper {
+    authDataUnwrap :: (AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
+}
 
--- | Builds an AuthDataWrapper out of configuration information.
--- Most often used as a partial method when setting up your site.
-configToADT
+-- | Wraps up an arbitrary IAuthDataSource value as an AuthDataWrapper
+-- so that it can be packaged in a list of AuthDataWrappers, which is
+-- easy to pass to validation methods.
+wrapDataSource
     :: (IAuthDataSource r)
-    => ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an object of class IAuthDataSource.
-    -> [CfgPair] -- ^ A list of Configurator pairs.
+    => r -- ^ A value of class IAuthDataSource.
     -> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
-configToADT groupTranslator cfg = AuthDataWrapper (getUser b, validateUser b)
-    where
-        b = groupTranslator cfg
+wrapDataSource b = AuthDataWrapper (getUser b, validateUser b)

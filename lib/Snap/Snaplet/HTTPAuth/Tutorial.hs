@@ -4,7 +4,48 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
 {-$ This Snaplet enables you to use HTTP Auth with configurable backends. -}
 
--- * Configuration
+-- * Usage in simple Snap applications
+
+{-$ To use the HTTPAuth mechanism alone in a simple Snap application, without requiring the additional Snaplet framework, configuration handling and Heist, you can define your authentication configuration and invoke `withAuthDomain` on its own.
+
+    Here's a quick example:
+
+    > import Snap.Snaplet.HTTPAuth
+    >
+    > myHandler :: Snap ()
+    > myHandler = withAuthDomain [] defaultAuthHeaders (Just myDomain) $
+    >     writeBS "Hello world"
+    >   where
+    >     myDomain = AuthDomain "mydomain" $ AuthDataWrapper (getUser auth, validateUser auth)
+    >     auth = UserPass "foo" "bar"
+
+ -}
+
+-- * Usage as a Snaplet
+
+{-$ To use the HTTPAuth mechanism alone in a simple Snap application, without requiring the additional Snaplet framework, configuration handling and Heist, you can define your authentication configuration and invoke `withAuthDomain` on its own.
+
+    Here's a quick example:
+
+    import Snap.Snaplet.HTTPAuth
+
+    > myHandler :: Snap ()
+    > myHandler = withAuthDomain defaultAuthHeaders myDomain $
+    >     writeBS "Hello world"
+    >   where
+    >     myDomain = AuthDomain "testdomain" (wrapDataSource $ UserPass "foo" "bar")
+
+    In this example, we're providing the following arguments to `withAuthDomain`:
+
+    * A list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`. Since this resource isn't particularly special, we left it blank.
+    * A list of methods that are able to parse an Authorization header, that will be evaluated in turn until we get one that works. `defaultAuthHeaders` implements Basic headers only.
+    * An `AuthDomain`, prepared with a wrapped source value that implements the class `IAuthDataSource`.
+
+    There's a variant of this method, `withAuthDomain'`, that supports providing a list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`.
+
+ -}
+
+-- ** Configuration
 
 {-$ In your Snap application's devel.cfg file, or whatever configuration is appropriate for your environment, you'll be assembling AuthDomain sections that describe which type of authentication is appropriate for which domain.
 
@@ -153,7 +194,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
     >     import qualified Data.Configurator.Types as CT
     >     -- put the import above at top of module
-    > 
+    >
     >     cfgToUserPass
     >         :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
     >         -> UserPass -- ^ A UserPass backend for a particular HTTPAuth domain.
@@ -172,7 +213,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
 
     > import qualified Data.ByteString.Char8 as C
     > -- put the import above at top of module
-    > 
+    >
     > instance IAuthDataSource UserPass where
     >     getUser up (AuthHeaderWrapper (_,gf,_)) = return $
     >         if gf "Username" == (Just . userpassUsername $ up)
@@ -223,7 +264,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     >     import qualified Data.ByteString.Char8 as C
     >     import Data.Maybe (fromMaybe)
     >     -- put the import above at top of module
-    > 
+    >
     >     instance AuthHeader BasicAuthHeader where
     >         authHeaderType _ = "BasicAuth"
     >         authHeaderField (BasicAuthHeader m) f = lookup f m

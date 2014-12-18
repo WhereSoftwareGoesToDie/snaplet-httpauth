@@ -14,7 +14,38 @@ Note that this Snaplet is still under development, and the documentation below i
 cabal install snaplet-httpauth
 ```
 
-## Usage
+## Usage in simple Snap applications
+
+To use the HTTPAuth mechanism alone in a simple Snap application, without requiring the additional Snaplet framework, configuration handling and Heist, you can define your authentication configuration and invoke `withAuthDomain` on its own.
+
+Here's a quick example:
+
+```haskell
+import Snap.Snaplet.HTTPAuth
+
+myHandler :: Snap ()
+myHandler = withAuthDomain defaultAuthHeaders myDomain $
+    writeBS "Hello world"
+  where
+    myDomain = AuthDomain "testdomain" (wrapDataSource $ UserPass "foo" "bar")
+```
+
+In this example, we're providing the following arguments to `withAuthDomain`:
+
+* A list of methods that are able to parse an Authorization header, that will be evaluated in turn until we get one that works. `defaultAuthHeaders` implements Basic headers only.
+* An `AuthDomain`, prepared with a wrapped source value that implements the class `IAuthDataSource`.
+
+There's a variant of this method, `withAuthDomain'`, that supports providing a list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`.
+
+## Usage as a Snaplet
+
+To use the HTTPAuth snaplet as a snaplet, within an application, you'll need to make sure to include the right modules as part of your Site and App declarations, as well as anything that calls HTTPAuth methods.
+
+```haskell
+import Snap.Snaplet.HTTPAuth
+import Snap.Snaplet.HTTPAuth.Application
+import Snap.Snaplet.HTTPAuth.Heist
+```
 
 ### Configuration
 

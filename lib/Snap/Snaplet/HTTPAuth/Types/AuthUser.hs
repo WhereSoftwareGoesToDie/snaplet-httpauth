@@ -5,10 +5,10 @@ module Snap.Snaplet.HTTPAuth.Types.AuthUser (
 ) where
 
 import Data.ByteString (ByteString)
-import Data.HashMap
+import Data.Map
 
 -------------------------------------------------------------------------------
 data AuthUser = AuthUser {
     authUserIdentity :: ByteString,
-    authUserDetails  :: HashMap ByteString ByteString
+    authUserDetails  :: Map ByteString ByteString
 } deriving (Show, Eq)

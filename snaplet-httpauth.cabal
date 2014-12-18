@@ -25,11 +25,14 @@ flag network-uri
 
 library
   exposed-modules:     Snap.Snaplet.HTTPAuth
+                     , Snap.Snaplet.HTTPAuth.Application
+                     , Snap.Snaplet.HTTPAuth.Heist
                      , Snap.Snaplet.HTTPAuth.Tutorial
-  other-modules:       Snap.Snaplet.HTTPAuth.App
+  other-modules:       Snap.Snaplet.HTTPAuth.Authorise
                      , Snap.Snaplet.HTTPAuth.Backend
                      , Snap.Snaplet.HTTPAuth.Backend.AllowEverythingIfHeader
                      , Snap.Snaplet.HTTPAuth.Backend.UserPass
+                     , Snap.Snaplet.HTTPAuth.Backend.Utilities.Configurator
                      , Snap.Snaplet.HTTPAuth.Config
                      , Snap.Snaplet.HTTPAuth.Types
                      , Snap.Snaplet.HTTPAuth.Types.AuthHeader
@@ -37,13 +40,13 @@ library
                      , Snap.Snaplet.HTTPAuth.Types.AuthHeader.Basic
                      , Snap.Snaplet.HTTPAuth.Types.AuthUser
                      , Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
+                     , Snap.Snaplet.HTTPAuth.Types.IAuthDataSource.Utilities
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
                      , configurator
                      , containers
-                     , hashmap
                      , heist
                      , lens
                      , mtl
@@ -70,10 +73,10 @@ test-suite snaplet-tests-frontend
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -81,6 +84,7 @@ test-suite snaplet-tests-frontend
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -107,10 +111,10 @@ test-suite snaplet-tests-response
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -118,6 +122,7 @@ test-suite snaplet-tests-response
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -144,10 +149,10 @@ test-suite simple-app-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , hspec
                      , hspec-expectations
@@ -155,6 +160,7 @@ test-suite simple-app-tests
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -181,15 +187,16 @@ executable uat-snaplet-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
-                     , hashmap
                      , heist
                      , http-client
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -216,19 +223,18 @@ executable uat-simple-snap-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
-                     , hashmap
-                     , heist
                      , http-client
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
-                     , snap-configuration-utilities
                      , snap-core
                      , snap-loader-static
                      , snap-server

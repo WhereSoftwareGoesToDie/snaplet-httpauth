@@ -16,6 +16,8 @@ import Snap.Core
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 import Snap.Snaplet.HTTPAuth
+import Snap.Snaplet.HTTPAuth.Application
+import Snap.Snaplet.HTTPAuth.Heist
 
 ------------------------------------------------------------------------------
 -- App
@@ -82,8 +84,8 @@ app = makeSnaplet "app" "Test app" Nothing $ do
     cfg <- getSnapletUserConfig
 
     let authHeaders = [parserToAHW parseBasicAuthHeader]
-    let authTypes = [ ("IfHeader",        configToADT cfgToAllowEverythingIfHeader)
-                    , ("UserPass",        configToADT cfgToUserPass)]
+    let authTypes = [ ("IfHeader", configToADT cfgToAllowEverythingIfHeader)
+                    , ("UserPass", configToADT cfgToUserPass)]
 
     ac <- liftIO $ getAuthManagerCfg authHeaders authTypes cfg
     a <- nestSnaplet "httpauth" httpauth $ authInit ac

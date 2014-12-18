@@ -2,19 +2,16 @@
 
 module Snap.Snaplet.HTTPAuth.Backend.UserPass (
     UserPass (..),
-    IAuthDataSource,
-    cfgToUserPass
+    IAuthDataSource
 ) where
 
 import qualified Data.ByteString.Char8 as C
-import qualified Data.Configurator.Types as CT
-import Data.HashMap (fromList, lookup)
-import Data.Text (Text)
+import Data.Map (fromList, lookup)
 import Prelude hiding (lookup)
+
 import Snap.Snaplet.HTTPAuth.Types.AuthHeader
 import Snap.Snaplet.HTTPAuth.Types.AuthUser
 import Snap.Snaplet.HTTPAuth.Types.IAuthDataSource
-import Snap.Utilities.Configuration
 
 -------------------------------------------------------------------------------
 -- | The UserPass backend for the HTTPAuth Snaplet allows only requests that
@@ -42,14 +39,3 @@ instance IAuthDataSource UserPass where
     validateUser up _ (AuthUser username f) =
         (username == (C.pack . userpassUsername $ up)) &&
         (lookup "Password" f == (Just . C.pack . userpassPassword $ up))
-
--------------------------------------------------------------------------------
-cfgToUserPass
-    :: [(Text, CT.Value)] -- ^ Pairs of configuration values extracted from the application's configuration file
-    -> UserPass -- ^ A UserPass backend for a particular HTTPAuth domain.
-cfgToUserPass cfg =
-    let
-        u = cfgLookupWithDefault "Username" "" stringValue cfg
-        p = cfgLookupWithDefault "Password" "" stringValue cfg
-        in
-            UserPass u p
