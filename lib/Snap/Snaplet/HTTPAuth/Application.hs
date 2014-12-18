@@ -93,7 +93,8 @@ withAuth
                       --    header was found but not authorised) HTTP status
                       --    code will be returned.
 withAuth dn auth ifSuccessful =
-    withTop auth (authDomain dn) >>= withAuthDomain' [] auth ifSuccessful
+    withTop auth (authDomain dn)
+    >>= prepInternalAuthDomain [] auth ifSuccessful
 
 -- | Perform authentication passthrough.
 --
@@ -111,11 +112,11 @@ withAuth'
     -> Handler b b ()
 withAuth' dn auth addRoles ifSuccessful =
     withTop auth (authDomain dn)
-    >>= withAuthDomain' addRoles auth ifSuccessful
+    >>= prepInternalAuthDomain addRoles auth ifSuccessful
 
 -- | Internal method: Uses the application lens to extract the Auth header
 -- parsers, and hands over to withAuthDomain.
-withAuthDomain'
+prepInternalAuthDomain
     :: [String] -- ^ List of additional roles to add to this domain to
                 --   authenticate with
     -> SnapletLens b AuthConfig -- ^ Lens to this application's AuthConfig
@@ -123,8 +124,8 @@ withAuthDomain'
     -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
                         --   supplied domain name
     -> Handler b b ()
-withAuthDomain' _ _ _ Nothing = throwDenied
-withAuthDomain' add_roles auth success_k (Just ad) = do
+prepInternalAuthDomain _ _ _ Nothing = throwDenied
+prepInternalAuthDomain add_roles auth success_k (Just ad) = do
     fs <- withTop auth $ view authHeaders
     internalWithAuthDomain add_roles fs (Just ad) success_k
 

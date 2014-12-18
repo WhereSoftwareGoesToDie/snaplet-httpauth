@@ -3,6 +3,7 @@
 
 module Snap.Snaplet.HTTPAuth.Authorise (
     withAuthDomain,
+    withAuthDomain',
     internalWithAuthDomain,
     userFromAuthDataSource,
     userFromDomain,
@@ -53,9 +54,19 @@ user' hdr_parsers user_getter = do
         Just h  -> liftIO $ user_getter h
 
 --------------------------------------------------------------------------------
+-- | Perform authentication passthrough with a known AuthDomain.
+withAuthDomain
+    :: (MonadSnap m)
+    => [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of Auth header parsers.
+    -> AuthDomain -- ^ A known AuthDomain object determined by the supplied
+                  -- domain name
+    -> m () -- ^ Snap handler to run if authentication was successful
+    -> m ()
+withAuthDomain fs ad = internalWithAuthDomain [] fs (Just ad)
+
 -- | Perform authentication passthrough with a known AuthDomain and list of
 -- additional roles.
-withAuthDomain
+withAuthDomain'
     :: (MonadSnap m)
     => [String] -- ^ List of additional roles to add to this domain to
                 --   authenticate with
@@ -64,7 +75,7 @@ withAuthDomain
                   -- domain name
     -> m () -- ^ Snap handler to run if authentication was successful
     -> m ()
-withAuthDomain add_roles fs ad = internalWithAuthDomain add_roles fs (Just ad)
+withAuthDomain' add_roles fs ad = internalWithAuthDomain add_roles fs (Just ad)
 
 -- | Perform authentication passthrough. Difference between this and
 -- `withAuthDomain` is that we have a potential `AuthDomain`, allowing us to

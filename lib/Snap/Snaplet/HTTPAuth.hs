@@ -11,7 +11,8 @@ module Snap.Snaplet.HTTPAuth (
 
     defaultAuthHeaders,
 
-    withAuthDomain
+    withAuthDomain,
+    withAuthDomain'
 ) where
 
 import Snap.Snaplet.HTTPAuth.Authorise

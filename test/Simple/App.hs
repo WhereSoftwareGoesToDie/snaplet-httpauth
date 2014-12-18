@@ -27,7 +27,7 @@ site =
     dir "static" (serveDirectory ".")
 
 echoHandler :: Snap ()
-echoHandler = withAuthDomain [] defaultAuthHeaders simpleAuthDomain $ do
+echoHandler = withAuthDomain defaultAuthHeaders simpleAuthDomain $ do
     param <- getParam "echoparam"
     maybe (writeBS "must specify echo/param in URL")
           writeBS param

@@ -30,7 +30,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     import Snap.Snaplet.HTTPAuth
 
     > myHandler :: Snap ()
-    > myHandler = withAuthDomain [] defaultAuthHeaders myDomain $
+    > myHandler = withAuthDomain defaultAuthHeaders myDomain $
     >     writeBS "Hello world"
     >   where
     >     myDomain = AuthDomain "testdomain" (wrapDataSource $ UserPass "foo" "bar")
@@ -40,6 +40,8 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     * A list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`. Since this resource isn't particularly special, we left it blank.
     * A list of methods that are able to parse an Authorization header, that will be evaluated in turn until we get one that works. `defaultAuthHeaders` implements Basic headers only.
     * An `AuthDomain`, prepared with a wrapped source value that implements the class `IAuthDataSource`.
+
+    There's a variant of this method, `withAuthDomain'`, that supports providing a list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`.
 
  -}
 
