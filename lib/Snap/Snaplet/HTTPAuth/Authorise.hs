@@ -64,7 +64,7 @@ withAuthDomain
                   -- domain name
     -> m () -- ^ Snap handler to run if authentication was successful
     -> m ()
-withAuthDomain add_roles fs ad success_k = internalWithAuthDomain add_roles fs (Just ad) success_k
+withAuthDomain add_roles fs ad = internalWithAuthDomain add_roles fs (Just ad)
 
 -- | Perform authentication passthrough. Difference between this and
 -- `withAuthDomain` is that we have a potential `AuthDomain`, allowing us to
@@ -94,8 +94,8 @@ getAuthorizationHeader
     => [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of available Authorization header parsers
     -> m (Maybe AuthHeaderWrapper)
 getAuthorizationHeader hdr_parsers =
-    getRequest >>=
-    return . join . fmap (parseAuthorizationHeader hdr_parsers) . getHeader "Authorization"
+    liftM (join . fmap (parseAuthorizationHeader hdr_parsers) . getHeader "Authorization")
+          getRequest
 
 --------------------------------------------------------------------------------
 -- | Throw a 401 error response, indicating that you must be authenticated to
@@ -128,4 +128,4 @@ testAuthHeader
     -> AuthHeaderWrapper -- ^ An AuthHeaderWrapper obtained by successfully parsing the Authorization header
     -> IO Bool
 testAuthHeader (AuthDomain _ (AuthDataWrapper (gu, vu))) addRoles h =
-    gu h >>= return . maybe False (vu addRoles)
+    liftM (maybe False $ vu addRoles) (gu h)

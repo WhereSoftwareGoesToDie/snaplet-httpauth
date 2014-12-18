@@ -80,7 +80,7 @@ expectHttpCodeHeaders
     -> Expectation
 expectHttpCodeHeaders status h r = do
     expectHttpCode status r
-    _ <- sequence $ map (eachHeader . toHeader) h
+    _ <- mapM (eachHeader . toHeader) h
     return ()
   where
     toHeader (k, v) = (CI.mk $ C.pack k, C.pack v)
