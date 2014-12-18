@@ -73,6 +73,7 @@ test-suite snaplet-tests-frontend
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
@@ -83,6 +84,7 @@ test-suite snaplet-tests-frontend
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -109,6 +111,7 @@ test-suite snaplet-tests-response
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
@@ -119,6 +122,7 @@ test-suite snaplet-tests-response
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -145,6 +149,7 @@ test-suite simple-app-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
@@ -155,6 +160,7 @@ test-suite simple-app-tests
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -181,6 +187,7 @@ executable uat-snaplet-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
@@ -189,6 +196,7 @@ executable uat-snaplet-tests
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap
@@ -215,6 +223,7 @@ executable uat-simple-snap-tests
   build-depends:       base >=4.7 && <4.8
                      , base64-bytestring
                      , bytestring
+                     , case-insensitive
                      , configurator
                      , containers
                      , directory
@@ -222,6 +231,7 @@ executable uat-simple-snap-tests
                      , http-types
                      , HUnit
                      , lens
+                     , MissingH
                      , mtl
                      , safe
                      , snap

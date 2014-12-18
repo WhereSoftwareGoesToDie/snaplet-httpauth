@@ -31,7 +31,7 @@ suite = do
     describe "ifheader auth" $ do
         it "prompts for auth when none is provided" $
             req "/ifheader" "get" Nothing Nothing >>=
-            expectHttpCode HT.unauthorized401
+            expectHttpCodeHeaders HT.unauthorized401 [("WWW-Authenticate", "Basic realm=ifheader")]
         it "flunks out when bad auth is provided" $
             req "/ifheader" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
             expectHttpCode HT.ok200
@@ -42,7 +42,7 @@ suite = do
     describe "userpass auth" $ do
         it "prompts for auth when none is provided" $
             req "/userpass" "get" Nothing Nothing >>=
-            expectHttpCode HT.unauthorized401
+            expectHttpCodeHeaders HT.unauthorized401 [("WWW-Authenticate", "Basic realm=userpass")]
         it "flunks out when bad auth is provided" $
             req "/userpass" "get" Nothing (Just $ packBasic "wrong" "credentials") >>=
             expectHttpCode HT.forbidden403

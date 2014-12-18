@@ -14,6 +14,7 @@ import Control.Lens
 import Control.Monad
 import Control.Monad.State
 import Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as C
 import Data.Maybe
 import qualified Data.Traversable as T
 import Snap.Core
@@ -66,7 +67,7 @@ withAuthDomain _ _ Nothing _ = throwDenied
 withAuthDomain add_roles fs (Just ad) success_k = do
     auth_header <- getAuthorizationHeader fs
     case auth_header of
-        Nothing -> throwChallenge
+        Nothing -> throwChallenge (authDomainName ad)
         Just h  -> do
             success <- liftIO $ testAuthHeader ad add_roles h
             if success then success_k else throwDenied
@@ -86,10 +87,13 @@ getAuthorizationHeader hdr_parsers =
 -- view this resource, and must send your credentials.
 throwChallenge
     :: (MonadSnap m)
-    => m ()
-throwChallenge = do
-    modifyResponse $ setResponseStatus 401 "Unauthorized"
-    writeBS "Tell me about yourself"
+    => String
+    -> m ()
+throwChallenge domainName = do
+    modifyResponse $ setResponseStatus 401 "Unauthorized" . setHeader "WWW-Authenticate" (C.pack realm)
+    getResponse >>= finishWith
+  where
+    realm = "Basic realm=" ++ domainName
 
 -- | Throw a 403 error response, indicating that your credentials were rejected
 -- and that you are not authorised to view this resource.
