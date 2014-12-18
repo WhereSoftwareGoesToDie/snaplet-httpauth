@@ -21,9 +21,7 @@ type CfgPair = (Text, CT.Value)
 -- Most often used as a partial method when setting up your site.
 configToADT
     :: (IAuthDataSource r)
-    => ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an object of class IAuthDataSource.
+    => ([CfgPair] -> r) -- ^ A function that converts a list of Configurator pairs to an value of class IAuthDataSource.
     -> [CfgPair] -- ^ A list of Configurator pairs.
-    -> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
-configToADT groupTranslator cfg = AuthDataWrapper (getUser b, validateUser b)
-    where
-        b = groupTranslator cfg
+    -> AuthDataWrapper -- ^ A container for an arbitrary value of class IAuthDataSource.
+configToADT groupTranslator = wrapDataSource . groupTranslator

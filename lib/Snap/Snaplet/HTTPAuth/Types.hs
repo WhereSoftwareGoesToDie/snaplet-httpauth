@@ -14,6 +14,7 @@ module Snap.Snaplet.HTTPAuth.Types (
     authHeaders,
 
     AuthHeaderWrapper (..),
+    wrapDataSource,
     parseBasicAuthHeader,
     parserToAHW,
     parseAuthorizationHeader,

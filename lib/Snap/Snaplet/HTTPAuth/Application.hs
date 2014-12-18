@@ -126,7 +126,7 @@ withAuthDomain'
 withAuthDomain' _ _ _ Nothing = throwDenied
 withAuthDomain' add_roles auth success_k (Just ad) = do
     fs <- withTop auth $ view authHeaders
-    withAuthDomain add_roles fs (Just ad) success_k
+    internalWithAuthDomain add_roles fs (Just ad) success_k
 
 --------------------------------------------------------------------------------
 -- | Internal method: Get AuthDomain by name

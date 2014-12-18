@@ -3,6 +3,7 @@ module Snap.Snaplet.HTTPAuth (
     AuthDomain (..),
 
     IAuthDataSource (..),
+    wrapDataSource,
 
     parseBasicAuthHeader,
     parserToAHW,

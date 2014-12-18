@@ -24,12 +24,17 @@ Here's a quick example:
 import Snap.Snaplet.HTTPAuth
 
 myHandler :: Snap ()
-myHandler = withAuthDomain [] defaultAuthHeaders (Just myDomain) $
+myHandler = withAuthDomain [] defaultAuthHeaders myDomain $
     writeBS "Hello world"
   where
-    myDomain = AuthDomain "mydomain" $ AuthDataWrapper (getUser auth, validateUser auth)
-    auth = UserPass "foo" "bar"
+    myDomain = AuthDomain "testdomain" (wrapDataSource $ UserPass "foo" "bar")
 ```
+
+In this example, we're providing the following arguments to `withAuthDomain`:
+
+* A list of additional roles that are relevant to this particular resource, which will be evaluated by the `validateUser` call in `AuthDataWrapper`. Since this resource isn't particularly special, we left it blank.
+* A list of methods that are able to parse an Authorization header, that will be evaluated in turn until we get one that works. `defaultAuthHeaders` implements Basic headers only.
+* An `AuthDomain`, prepared with a wrapped source value that implements the class `IAuthDataSource`.
 
 ## Usage as a Snaplet
 

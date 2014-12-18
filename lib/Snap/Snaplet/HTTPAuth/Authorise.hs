@@ -3,6 +3,7 @@
 
 module Snap.Snaplet.HTTPAuth.Authorise (
     withAuthDomain,
+    internalWithAuthDomain,
     userFromAuthDataSource,
     userFromDomain,
 
@@ -59,12 +60,26 @@ withAuthDomain
     => [String] -- ^ List of additional roles to add to this domain to
                 --   authenticate with
     -> [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of Auth header parsers.
+    -> AuthDomain -- ^ A known AuthDomain object determined by the supplied
+                  -- domain name
+    -> m () -- ^ Snap handler to run if authentication was successful
+    -> m ()
+withAuthDomain add_roles fs ad success_k = internalWithAuthDomain add_roles fs (Just ad) success_k
+
+-- | Perform authentication passthrough. Difference between this and
+-- `withAuthDomain` is that we have a potential `AuthDomain`, allowing us to
+-- terminate the request with a 403.
+internalWithAuthDomain
+    :: (MonadSnap m)
+    => [String] -- ^ List of additional roles to add to this domain to
+                --   authenticate with
+    -> [ByteString -> Maybe AuthHeaderWrapper] -- ^ List of Auth header parsers.
     -> Maybe AuthDomain -- ^ A potential AuthDomain object determined by the
                         --   supplied domain name
     -> m () -- ^ Snap handler to run if authentication was successful
     -> m ()
-withAuthDomain _ _ Nothing _ = throwDenied
-withAuthDomain add_roles fs (Just ad) success_k = do
+internalWithAuthDomain _ _ Nothing _ = throwDenied
+internalWithAuthDomain add_roles fs (Just ad) success_k = do
     auth_header <- getAuthorizationHeader fs
     case auth_header of
         Nothing -> throwChallenge (authDomainName ad)

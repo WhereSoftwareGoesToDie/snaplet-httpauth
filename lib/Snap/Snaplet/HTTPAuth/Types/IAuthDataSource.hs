@@ -7,7 +7,8 @@
 
 module Snap.Snaplet.HTTPAuth.Types.IAuthDataSource (
     IAuthDataSource (..),
-    AuthDataWrapper (..)
+    AuthDataWrapper (..),
+    wrapDataSource
 ) where
 
 import qualified Data.Configurator.Types as CT
@@ -32,3 +33,12 @@ class IAuthDataSource r where
 data AuthDataWrapper = AuthDataWrapper {
     authDataUnwrap :: (AuthHeaderWrapper -> IO (Maybe AuthUser), [String] -> AuthUser -> Bool)
 }
+
+-- | Wraps up an arbitrary IAuthDataSource value as an AuthDataWrapper
+-- so that it can be packaged in a list of AuthDataWrappers, which is
+-- easy to pass to validation methods.
+wrapDataSource
+    :: (IAuthDataSource r)
+    => r -- ^ A value of class IAuthDataSource.
+    -> AuthDataWrapper -- ^ A container for an arbitrary object of class IAuthDataSource.
+wrapDataSource b = AuthDataWrapper (getUser b, validateUser b)
