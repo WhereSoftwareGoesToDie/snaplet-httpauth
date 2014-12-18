@@ -2,7 +2,6 @@
 
 module Test.Helpers where
 
-import Prelude hiding (lookup)
 import Control.Exception
 import Control.Lens
 import qualified Data.ByteString.Base64 as BS64
@@ -18,6 +17,7 @@ import Data.Text (pack)
 import qualified Network.HTTP.Client as HC
 import qualified Network.HTTP.Types as HT
 import Network.Wreq
+import Prelude hiding (lookup)
 import Test.Hspec
 import Test.Hspec.Expectations
 import Test.HUnit

@@ -11,7 +11,7 @@ module Snap.Snaplet.HTTPAuth.Tutorial where
     Here's a quick example:
 
     > import Snap.Snaplet.HTTPAuth
-    > 
+    >
     > myHandler :: Snap ()
     > myHandler = withAuthDomain [] defaultAuthHeaders (Just myDomain) $
     >     writeBS "Hello world"
